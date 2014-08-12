@@ -4,12 +4,15 @@
 # so that it can be uploaded to S3 (Amazon) storage.
 # Sending the files to a specified S3 repository would be a nice addition.
 
+# Usage: python splitter.py -i filename
+
 # Needed for arguments below
 import sys
-# Needed for call command to run UNIX process
+# Needed for python call command to run UNIX split command
 from subprocess import call
 
 # The desired size of split files
+# Current set to 50 MB as small files are easier to upload over a shaky VPN
 size = '50'
 
 # Take filename from standard input
@@ -24,7 +27,7 @@ for arg in sys.argv:
 		flag = 1
 sys.stdin = open(filename_in, 'r')
 
-#print(sys.stdin.name)
-
+# Call the shell utility 'split' with argument '-b' for split size
+# File names are take from the command line
 call(['split', '-b', size + 'm', sys.stdin.name, sys.stdin.name + '-part-'])
 
