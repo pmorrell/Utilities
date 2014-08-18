@@ -1,16 +1,20 @@
 #/usr/bin/env python
 # 12 August 2014, St. Louis, MO
-# This script is intended to take a file and split it into smaller pieces
+# This script is intended to split a file into smaller pieces \
 # so that it can be uploaded to S3 (Amazon) storage.
 # Sending the files to a specified S3 repository would be a nice addition.
+# The UNIX cut command has this usage:
+# cut -b [size]m [filename] [filename]-part-
+# The line above creates files, with size in megabytes using the specified file \
+# appends '-part-' and then 'aa', 'ab', etc. in sequence
 
-# Usage: python splitter.py -i filename -s size
+# Usage: python splitter.py -i filename -s [size]
 
 # Needed for arguments below
 import sys
 # To get arguments
 import argparse
-# Needed for call command to run UNIX process
+# Needed for 'call' command to run UNIX process
 from subprocess import call
 
 #####
@@ -39,8 +43,7 @@ Arguments.add_argument('-s',
 #   And parse them
 ParsedArgs = Arguments.parse_args()
 
-# Call the shell utility 'split' with argument '-b' for split size
-# File names are take from the command line
+# Call split with parameters defined above
 # str() coerces the variable which is an integer to a string
 call(['split', '-b', str(ParsedArgs.size) + 'm', ParsedArgs.infile.name, ParsedArgs.infile.name + '-part-'])
 
