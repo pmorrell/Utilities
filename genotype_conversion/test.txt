@@ -1,0 +1,7 @@
+sample	SNP01	SNP02
+ind01	AA	CC
+ind02	AA	NA
+ind03	AA	CC
+ind04	AT	CT
+ind05	TT	TT
+ind06	AT	CT
