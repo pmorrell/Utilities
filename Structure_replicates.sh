@@ -1,5 +1,10 @@
 #!/bin/bash -l
-# written by Peter L. Morrell, April 2011, St. Paul, MN 
+# written by Peter L. Morrell, April 2011, St. Paul, MN
+
+set -e
+set -u
+set -o pipefail
+
 #PBS -l walltime=10:00:00,mem=4gb,nodes=4:ppn=1
 #PBS -m abe -M youremail@email.edu
 
