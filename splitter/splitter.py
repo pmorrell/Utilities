@@ -9,14 +9,21 @@
 # The line above creates files, with size in megabytes using the specified file \
 # appends '-part-' and then 'aa', 'ab', etc. in sequence
 
-# Usage: python splitter.py -i filename -s [size]
-
 # Needed for arguments below
 import sys
 # To get arguments
 import argparse
 # Needed for 'call' command to run UNIX process
 from subprocess import call
+
+Usage = """
+
+Usage:
+python splitter.py -i filename -s [size]
+"""
+if len(sys.argv) < 2:
+    print (Usage)
+    exit(1)
 
 #####
 #   Defining arguments
