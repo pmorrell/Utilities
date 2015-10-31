@@ -1,0 +1,6 @@
+# This is a comment line
+1001-1187	fred	wilma
+10012-1239	barney	betty
+10012-1239	barney	betty
+10012-1239	barney	betty
+10047-338	dino	peebles
