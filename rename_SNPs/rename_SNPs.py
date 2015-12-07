@@ -26,7 +26,7 @@ import sys
 
 Usage = """
 Change SNP names in an Alchemy genotype file.
-Read standard input. Two files are required:
+Two files are required:
 1)The file should include Alchemy genotype data.
 2)The second file should include a list of names, with new names in the 
 1st column and old names in the 2nd column.
@@ -38,7 +38,7 @@ else:
 
 	in_file = sys.argv[1]
 	names_file = sys.argv[2]
-	input = open(sys.argv[1],'r')
+	alchemy_input = open(sys.argv[1],'r')
 	# NamesFile=('name_test.txt')
 	names = open(names_file, 'r')
 
@@ -55,7 +55,7 @@ else:
 		if name_long not in file_dic: file_dic[name_long] = []
 		file_dic[name_long] = name_id
 
-	for line in input:
+	for line in alchemy_input:
 		snp = line.strip('\n').split('\t')
 		snp = snp[0]
 		if snp in file_dic:
@@ -67,6 +67,6 @@ else:
 		outfile.write(output)
 
 
-input.close()
+alchemy_input.close()
 names.close()
 outfile.close()
