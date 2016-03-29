@@ -3,6 +3,8 @@ set -e
 set -u
 set -o pipefail
 
+module load R
+
 #PBS -l mem=12gb,nodes=1:ppn=1,walltime=4:00:00 
 #PBS -m abe 
 #PBS -M pmorrell@umn.edu 
@@ -22,7 +24,7 @@ BAM=${WORKING}/${PROJECT}/${SAMPLE}/Sample_${SAMPLE}_${PROJECT}_${DATE}_Finished
 TARGETS=~/Shared/Datasets/Annotations/Soybean_Cyst_Nematode/Heterodera_glycines_OP25_gene_models.gff
 
 #   check if R is installed and in the path
-if `command -v Rscript > /dev/null 2> /dev/null`
+if $(command -v Rscript > /dev/null 2> /dev/null)
     then 
         echo "R is installed, OK"
     else
@@ -30,10 +32,9 @@ if `command -v Rscript > /dev/null 2> /dev/null`
         exit 1
 fi
 
-
 cd $WORKING
 
-mkdir -p ${SCN}/${SAMPLE}
+mkdir -p ${PROJECT}/${SAMPLE}
 
 ${BEDTOOLS} coverage \
 -hist \
@@ -41,3 +42,4 @@ ${BEDTOOLS} coverage \
 -b ${TARGETS} \
 > Sample_${SAMPLE}_${PROJECT}_${DATE}.coverage.hist.txt
 
+Rscript plots_seqqs.R $PROJECT $SAMPLE $DATE
