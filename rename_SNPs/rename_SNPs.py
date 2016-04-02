@@ -28,10 +28,12 @@ Usage = """
 Change SNP names in an Alchemy genotype file.
 Two files are required:
 1)The file should include Alchemy genotype data.
-2)The second file should include a list of names, with new names in the 
+2)The second file should include a list of names, with new names in the \
 1st column and old names in the 2nd column.
 """
 
+#    Must provide Alchemy genotype data and old and new SNP names
+#    Or alternatively, old names of rows and new names of rows!
 if len(sys.argv) < 3:
 	print Usage
 else:
@@ -39,13 +41,14 @@ else:
 	in_file = sys.argv[1]
 	names_file = sys.argv[2]
 	alchemy_input = open(sys.argv[1],'r')
-	# NamesFile=('name_test.txt')
+
 	names = open(names_file, 'r')
 
+#     Open an outfile that with have "renamed_" appended to the in file name
 	out_file = ("renamed_"+in_file)
 	outfile = open(out_file, 'w')
 
-# Create a dictionary
+#     Create a dictionary
 	file_dic = {}
 	for line in names:
 		# Remove if empty key
