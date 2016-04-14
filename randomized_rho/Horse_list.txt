@@ -1,0 +1,8 @@
+#List of horses to sample from the fasta file
+Star
+Hap
+Snip
+Patches
+Sonny
+
+
