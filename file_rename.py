@@ -20,8 +20,8 @@ Usage:
 """
 
 #   Expects a filename as the only argument
-if len(sys.argv) < 1:
-    print (Usage)
+if not sys.argv[1:]:
+    print(Usage)
     exit(1)
 
 #   Create a dictionary that will hold old and new file names 
@@ -52,5 +52,4 @@ re_names = {k: file_data[k] for k in files if k in file_data}
 
 #    Use keys and values to replace old file names with new
 for i, j in re_names.items():
-    #os.rename(str(list(re_names.keys())), str(list(re_names.values())))
-    os.rename(i, re_names[i])
+	os.rename(i, re_names[i])
