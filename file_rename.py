@@ -8,12 +8,7 @@ import sys
 
 Usage = """
 file_rename.py - version 1
-The script reads in a file containing a list of old and new files in the \
-first and second column. It then checks for presence of a file by the \
-same name in the current working directory. If the file is present (and \
-the user has permissions) the file name is replaced with the name in the \
-second column. Both old and new file names listed should be unique. \
-The list of file names can have a header after a comment "#" symbol.
+The script reads in a file containing a list of old and new files in the first and second column. It then checks for presence of a file by the same name in the current working directory. If the file is present (and the user has permissions) the file name is replaced with the name in the second column. Both old and new file names listed should be unique. The list of file names can have a header after a comment "#" symbol.
 
 Usage:
     file_rename.py [file_list.txt]
@@ -38,7 +33,7 @@ try:
                 names = line.split()
                 file_data[names[0]] = names[1]
 except IOError as ex:
-	print ("File open issue: " + ex.strerror)
+	print("File open issue: " + ex.strerror)
 
 #    Get the path to the current directory
 cwd = os.getcwd()
