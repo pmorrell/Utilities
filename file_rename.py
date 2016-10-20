@@ -19,7 +19,7 @@ if not sys.argv[1:]:
     print(Usage)
     exit(1)
 
-#   Create a dictionary that will hold old and new file names 
+#   Create a dictionary that will hold old and new file names
 file_data = {}
 #   Read the file in line-by-line
 try:
@@ -28,12 +28,12 @@ try:
             #   Skip the header lines
             if line.startswith('#'):
                 continue
-            else:
             #   Split the two columns, then write to key & value
+            else:
                 names = line.split()
                 file_data[names[0]] = names[1]
 except IOError as ex:
-	print("File open issue: " + ex.strerror)
+    print("File open issue: " + ex.strerror)
 
 #    Get the path to the current directory
 cwd = os.getcwd()
@@ -47,4 +47,4 @@ re_names = {k: file_data[k] for k in files if k in file_data}
 
 #    Use keys and values to replace old file names with new
 for i, j in re_names.items():
-	os.rename(i, re_names[i])
+    os.rename(i, re_names[i])
