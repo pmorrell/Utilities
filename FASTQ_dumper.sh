@@ -7,10 +7,15 @@
 
 set -euo pipefail
 
+#    A script to take a list of SRA files and convert them into forward and reverse reads in fastq format.
+#    Files will also be gzipped.
+#    This can take a while, so we run on MSI.
 #    Peter L. Morrell, 26 July 2016, St. Paul, MN
 #    Updated 27 October 2016
 #    Dependencies: SRA Toolkit
-#    Requires bash version 4+ for mapfile
+#    Requires bash version 4+ for mapfile (not currently used)
+
+
 
 module load sratoolkit
 module load parallel
@@ -19,7 +24,6 @@ module load parallel
 WORKING=/panfs/roc/scratch/pmorrell/testing123
 
 #   initalize the array that will hold a list of SRA files
-#SRA=()
 #mapfile -t SRA < <(find ${WORKING} -maxdepth 1 -name '*.sra' -type f)
 declare -a SRA=($(find ${WORKING} -maxdepth 1 -name '*.sra' -type f))
 echo "${#SRA[@]} samples"
