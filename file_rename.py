@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # Peter L. Morrell - St. Paul, MN 17 October 2016
-"""A script to rename files, especially fastq files downloaded from the \
-NCBI Sequence Read Archive."""
+"""A script to rename files, especially fastq files downloaded from the NCBI Sequence Read Archive."""
+
+"""Known issues: 1) is only designed to work from the directory where files will be renamed and 2) will not except input files with a trailing newline!"""
 
 import os
 import sys
