@@ -9,9 +9,9 @@ module load vcftools_ML/0.1.14
 #    Dependencies: VCFTools
 
 #    Requires three input files:
-#    1) the sample where private allele will be identified
-#    2) a list of SNPs to be included [optional]
-#    3) 
+#    1) a VCF including all SNPs and all samples
+#    2) a list of SNPs to be included [optional], for example, noncoding variants
+#    3) the name of the sample to be tested as private
 
 #while getopts ":h::s:" o; do
 #	case $arg in 
