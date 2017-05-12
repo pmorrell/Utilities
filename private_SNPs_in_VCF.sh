@@ -13,26 +13,15 @@ module load vcftools_ML/0.1.14
 #    2) a list of SNPs to be included [optional], for example, noncoding variants
 #    3) the name of the sample to be tested as private
 
-#while getopts ":h::s:" o; do
-#	case $arg in 
-#		s) # Specify sample list.
-#           SAMPLE=${OPTARG}
-#           ;;
-#       h | *) # Display help.
-#          usage
-#            exit 0
-#            ;;
-#        esac
-#    done
-
 if [ $# -ne 3 ]; then
-    echo $0: usage: "private_SNPs_in_VCF.sh [full VCF] [SNP list] [sample]"
+    echo $0: usage: "private_SNPs_in_VCF.sh [full VCF] [SNP list] [sample] [chromosome]"
     exit 1
 fi
 
 full_vcf=$1
 SNP_list=$2
 sample_name=$3
+chromosome=$4
 
 sample=$(basename $sample_name)
 
@@ -41,6 +30,7 @@ vcftools --gzvcf $full_vcf \
     --snps $SNP_list \
     --recode \
     --mac 1 \
+    --chr $chromosome \
     --remove $sample_name \
     --out ${sample}_removed
 
@@ -48,6 +38,7 @@ vcftools --gzvcf $full_vcf \
     --snps $SNP_list \
     --recode \
     --mac 1 \
+    --chr $chromosome \
     --keep $sample_name \
     --out ${sample}_only
  
