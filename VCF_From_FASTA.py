@@ -101,7 +101,7 @@ for i in indels:
         #   Otherwise, truncate ref, and fill the alt with N
         reference_state = before_indel_base
         alternate_state = before_indel_base + 'N'*len(i)
-    entry = '\t'.join([chrom_name, str(before_indel + start_pos), '.', reference_state, alternate_state, '.', '.', 'INDEL'])
+    entry = '\t'.join([chrom_name, str(before_indel + start_pos + 2), '.', reference_state, alternate_state, '.', '.', 'INDEL'])
     handle.write(entry + '\n')
 handle.close()
 
@@ -118,6 +118,6 @@ for position in snp_positions:
     #   if it is involved in an indel, then we don't want it
     if reference_allele == '-' or alternate_allele == '-':
         continue
-    entry = '\t'.join([chrom_name, str(position + start_pos), '.', reference_allele, alternate_allele, '.', '.', '.'])
+    entry = '\t'.join([chrom_name, str(position + start_pos + 1), '.', reference_allele, alternate_allele, '.', '.', '.'])
     handle.write(entry + '\n')
 handle.close()
