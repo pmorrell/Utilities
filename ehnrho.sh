@@ -1,6 +1,6 @@
 #!/bin/env bash
 
-#PBS -l mem=1000mb,nodes=1:ppn=16,walltime=72:00:00
+#PBS -l mem=2500mb,nodes=1:ppn=16,walltime=96:00:00
 #PBS -m abe
 #PBS -M pmorrell@umn.edu
 #PBS -q mesabi
