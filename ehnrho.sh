@@ -18,7 +18,7 @@ RHO_VALUES=25
 GROWTH_RATE=0.00000
 ITERATIONS=15000000
 
-OUT_FILE=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/ehnrho/h${SAMPLE_NUMBER}rho
+OUT_FILE=/panfs/roc/groups/9/morrellp/pmorrell/Apps/RHudson/ehnrho/h${SAMPLE_NUMBER}rho
 
 $EH $POP_NUMBER $SAMPLE_NUMBER $RHO_VALUES \
 0.000000 0.050000 0.100000 0.200000 0.300000 \
