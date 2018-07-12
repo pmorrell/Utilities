@@ -24,5 +24,4 @@ WORKING=/panfs/roc/scratch/pmorrell/MBE_Barley
 declare -a SRA=($(find ${WORKING} -maxdepth 1 -name '*.sra' -type f))
 echo "${#SRA[@]} samples"
 
-parallel --verbose "fastq-dump --split-files -I -F --gzip {} --outdir ${WORKING}" ::: ${SRA[@]}
-
+parallel --verbose "fastq-dump --split-files -I -F --gzip {} --outdir ${WORKING}" ::: "${SRA[@]}"
