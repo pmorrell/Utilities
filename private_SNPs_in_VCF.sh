@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+#    Need to test for memory limitations in the new vcftools 0.1.16
 module load vcftools_ML/0.1.14
 
 #    A script to identify private SNPs within a sample
@@ -45,7 +46,7 @@ vcftools --gzvcf $full_vcf \
 vcftools --vcf ${sample}_removed.recode.vcf \
     --diff ${sample}_only.recode.vcf --diff-site --out ${sample}
 #    The output is only the prefix. The rest of the name will include ".diff.sites_in_files"
-#    The file contains a report on every siteretained in the analysis. 
+#    The file contains a report on every site retained in the analysis. 
 
 #    The 4th column of this file reports the number of sites
 #    that are unique to the 2nd VCF file. Here that will 

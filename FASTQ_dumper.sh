@@ -11,6 +11,7 @@ set -euo pipefail
 #    Updated 27 October 2016
 #    Dependencies: SRA Toolkit
 #    Requires bash version 4+ for mapfile
+#    Current version will work with "declare" sure to create array
 
 module load sratoolkit
 module load parallel

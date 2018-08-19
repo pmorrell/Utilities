@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 # Peter L. Morrell - St. Paul, MN 17 October 2016
-"""A script to rename files, especially fastq files downloaded from the NCBI Sequence Read Archive."""
+"""A script to rename files, especially fastq files \
+downloaded from the NCBI Sequence Read Archive."""
 
-"""Known issues: 1) is only designed to work from the directory where files will be renamed and 2) will not except input files with a trailing newline!"""
+"""Known issues: 1) is only designed to work from the \
+directory where files will be renamed and 2) will not \
+except input files with a trailing newline!"""
 
 import os
 import sys
 
 Usage = """
 file_rename.py - version 1
-The script reads in a file containing a list of old and new files in the first and second column. It then checks for presence of a file by the same name in the current working directory. If the file is present (and the user has permissions) the file name is replaced with the name in the second column. Both old and new file names listed should be unique. The list of file names can have a header after a comment "#" symbol.
+The script reads in a file containing a list of old and \
+new files in the first and second column. It then checks \
+for presence of a file by the same name in the current \
+working directory. If the file is present (and the user \
+has permissions) the file name is replaced with the name \
+in the second column. Both old and new file names listed \
+should be unique. The list of file names can have a header \
+after a comment "#" symbol.
 
 Usage:
     file_rename.py [file_list.txt]
