@@ -18,10 +18,10 @@ fastq to a BAM file
 `lscpu`
 - lab nodes have 16 cores!
 - GNU sort can use all the cores at once
-`time sort -u --parallel=16 raw_reads.txt >raw_reads_sort.txt &`
-real	8m40.872s
-user	16m5.420s
-sys	0m12.326s
+`time sort -u --parallel=16 raw_reads.txt >raw_reads_sort.txt &`\
+real	8m40.872s\
+user	16m5.420s\
+sys	0m12.326s\
 
 `time sort -u --parallel=2 mapped_reads.txt >mapped_reads_sort.txt &`
 real	4m29.568s
