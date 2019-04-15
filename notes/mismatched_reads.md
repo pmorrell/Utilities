@@ -19,28 +19,27 @@ fastq to a BAM file
 - lab nodes have 16 cores!
 - GNU sort can use all the cores at once\
 `time sort -u --parallel=16 raw_reads.txt >raw_reads_sort.txt &`\
-...real	8m40.872s\
-...user	16m5.420s\
-...sys	0m12.326s
+   real	8m40.872s\
+   user	16m5.420s\
+   sys	0m12.326s
 
 `time sort -u --parallel=2 mapped_reads.txt >mapped_reads_sort.txt &`\
-...real	4m29.568s\
-...user	7m48.458s\
-...sys	0m5.446s
+   real	4m29.568s\
+   user	7m48.458s\
+   sys	0m5.446s
 
 - is sorting faster with more processors?
 - no!
 `time sort -u --parallel=16 mapped_reads.txt >mapped_reads_sort.txt &`\
-...real	7m4.601s\
-...user	13m38.326s\
-...sys	0m12.079s
+   real	7m4.601s\
+   user	13m38.326s\
+   sys	0m12.079s
 
 - don't bother with the parallel operation!
 `time sort -u mapped_reads.txt >mapped_reads_sort.txt &`\
-...real	4m21.660s\
-...user	8m10.404s\
-...sys	0m7.201s
-
+   real	4m21.660s\
+   user	8m10.404s\
+   sys	0m7.201s
 
 - using comm with options below will return reads in mapped reads (in BAM) that aren't in the original fastq
 `comm -23 mapped_reads.txt raw_reads.txt`
