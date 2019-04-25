@@ -13,7 +13,7 @@ set -euo pipefail
 EH=/panfs/roc/groups/9/morrellp/pmorrell/Apps/RHudson/ehnrho/eh
 
 POP_NUMBER=1
-SAMPLE_NUMBER=200
+SAMPLE_NUMBER=179
 RHO_VALUES=25
 GROWTH_RATE=0.00000
 ITERATIONS=15000000

@@ -7,7 +7,7 @@
 
 #    Collect file from command line
 #SRA_FILES=${HOME}/scratch/MBE_Barley/MBE_barley.txt
-SRA_FILES=${HOME}/scratch/MBE_Barley/MBE_Bowman.txt
+SRA_FILES=${HOME}/scratch/MBE_outgroup/MBE_outgroup_samples.txt
 
 #   Make sure the file exists
 if ! [[ -f "${SRA_FILES}" ]]
@@ -25,7 +25,7 @@ printf '%s\n' "${SRA_ARRAY[@]}"
 SRA_FETCH=${HOME}/Apps/TKono/Misc_Utils/SRA_Fetch.sh 
 
 #   directory where SRA files will be downloaded
-OUTPUT=${HOME}/scratch/MBE_Barley/
+OUTPUT=${HOME}/scratch/MBE_outgroup/
 
 #   iterate over every each of the run numbers in a lit of SRA files
 #   and download to specified directory
