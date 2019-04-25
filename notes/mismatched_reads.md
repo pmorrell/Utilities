@@ -23,7 +23,7 @@ fastq to a BAM file
    user	16m5.420s\
    sys	0m12.326s
 
-`time sort -u --parallel=2 mapped_reads.txt >mapped_reads_sort.txt &`\
+  `time sort -u --parallel=2 mapped_reads.txt >mapped_reads_sort.txt &`\
    real	4m29.568s\
    user	7m48.458s\
    sys	0m5.446s
