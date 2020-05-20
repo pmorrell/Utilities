@@ -19,12 +19,13 @@ reference = sequences[0]
 #   And the name of the 'chromosome' is the contig name
 string_name = reference.name
 chrom_name = re.split(':|-', string_name)[0]
-start_pos = int(re.split(':|-', string_name)[1]) + 1 # Add one to convert from 0-based BED to 1-based VCF
+#  Add one to convert from 0-based BED to 1-based VCF
+start_pos = int(re.split(':|-', string_name)[1])
 print start_pos
 
 #   The VCF header
-vcf_header="""##fileformat=VCFv4.1
-##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Variant is an INDEL">
+vcf_header="""##fileformat=VCFv4.2
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Variants from Sanger sequencing alignments">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 """
 
@@ -110,6 +111,7 @@ snpfilename = alignment.replace('.fasta', '_SNPs.vcf')
 handle = open(snpfilename, 'w')
 handle.write(vcf_header)
 for position in snp_positions:
+    print position
     states = set(columns[position])
     states.discard('N')
     states.discard('-')
