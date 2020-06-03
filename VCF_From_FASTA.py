@@ -118,6 +118,6 @@ for position in snp_positions:
     #   if it is involved in an indel, then we don't want it
     if reference_allele == '-' or alternate_allele == '-':
         continue
-    entry = '\t'.join([chrom_name, str(position + start_pos + 1), '.', reference_allele, alternate_allele, '.', '.', '.'])
+    entry = '\t'.join([chrom_name, str(position + start_pos), '.', reference_allele, alternate_allele, '.', '.', '.'])
     handle.write(entry + '\n')
 handle.close()
