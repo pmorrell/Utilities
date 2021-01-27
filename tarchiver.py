@@ -39,9 +39,9 @@ except:
     print('Please pass directory_name')
 
 
-tar = tarfile.open( directory_name + ".tar.bz2", "w:bz2" )
-os.chdir( directory_name )
-for name in os.listdir( directory_name ):
+tar = tarfile.open(directory_name + ".tar.bz2", "w:bz2")
+os.chdir(directory_name)
+for name in os.listdir(directory_name):
     #print(name)
     tar.add(name)
 tar.close()

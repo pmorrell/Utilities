@@ -1,12 +1,14 @@
 #!/bin/env python
 
 from Bio import SeqIO
-import re,fileinput,os
+import re
+import fileinput
+import os
 
 INPUTDIR  = "."
 
-list_of_files=[ phd for phd in os.listdir(INPUTDIR) if phd.endswith(".phd.1") ]
-            
+list_of_files=[phd for phd in os.listdir(INPUTDIR) if phd.endswith(".phd.1")]
+
 for input in list_of_files:
 	print("%s %i" % (input.id, len(input)))
     SeqIO.write(input, "".join(str(input).split(".")""+"fq","fastq-sanger")
