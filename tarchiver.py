@@ -18,7 +18,7 @@ python archiver.py directory_name
 
 if len(sys.argv) < 1:
     print(Usage)
-    exit(1)
+    sys.exit(1)
 
 #####
 #   Defining arguments
