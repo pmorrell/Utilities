@@ -14,7 +14,7 @@ module load ncbi_blast+/2.8.1
 set -euf - o pipefail
 
 #   The reference genome used to create a database
-REF=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.faß
+REF=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Cowpea/SNP_Utils/Vunguiculata_IT97K-499-35_v1.0.fa
 
 # Output basenamne
 OUT=Vunguiculata_IT97K-499-35_v1.0.fa
