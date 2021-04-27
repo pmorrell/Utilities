@@ -27,5 +27,4 @@ mkdir -p \
 "$OUTPUT_DIR"
 
 cd "$OUTPUT_DIR"
-makeblastdb -in "$REF" -out "$OUT" -dtype nucl -parse_seqids
-
+makeblastdb -in "$REF" -out "$OUT" -dbtype nucl -parse_seqids
