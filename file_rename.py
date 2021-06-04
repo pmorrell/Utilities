@@ -40,10 +40,8 @@ try:
             #   Skip the header lines
             if line.startswith('#'):
                 continue
-            #   Split the two columns, then write to key & value
-            else:
-                names = line.strip().split()
-                file_data[names[0]] = names[1]
+            names = line.strip().split()
+            file_data[names[0]] = names[1]
 except IOError as ex:
     print("File open issue: " + ex.strerror)
 
