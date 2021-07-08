@@ -1,7 +1,7 @@
 #/usr/bin/env python
 # 12 August 2014, St. Louis, MO
 # Peter L. Morrell - my first piece of Python code
-# This script is intended to split a file into smaller pieces \
+# This script is intended to split a file into smaller pieces 
 # so that it can be uploaded to S3 (Amazon) storage.
 # Sending the files to a specified S3 repository would be a nice addition.
 # The UNIX split command has this usage:
@@ -22,7 +22,7 @@ Usage:
 python splitter.py -i filename -s [size]
 """
 if len(sys.argv) < 2:
-    print (Usage)
+    print(Usage)
     exit(1)
 
 #####
