@@ -4,7 +4,8 @@
 Pull ancestral state of variants from a list and create input for plotting the \
 unfolded SFS and identifying ancestral state for each genotype at each position.
 This script is lightly rewritten from a version from Tom Kono written for \
-barley ancestral state inference.
+barley ancestral state inference: \
+https://github.com/MorrellLAB/Deleterious_GP/blob/master/Analysis_Scripts/Data_Handling/H_murinum_Ancestral.py
 
 """
 
