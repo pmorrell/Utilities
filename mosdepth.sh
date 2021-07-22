@@ -12,7 +12,7 @@
 set -euf
 set -o pipefail
 
-MOSDEPTH=/panfs/roc/groups/9/morrellp/shared/Software/mosdepth
+MOSDEPTH=/panfs/roc/groups/9/morrellp/shared/Software/mosdepth/mosdepth
 
 OUT_PREFIX=WBDC355_Nanopore
 
