@@ -2,16 +2,17 @@
 # Peter L. Morrell - Falcon Heights, MN - 22 July 2021
 
 """
-Read in the large file listing the ancestral state of each SNP as 'AA' or 'DD'. \
+Read in large file listing the ancestral state of each SNP as 'AA' or 'DD'. \
 This file is created using a VCF and ancestral state estimates, using \
-`ancestral_state.py`. This script outputs the frequency of derived variants in \
-a diploid sample. The output of this script is the frequency of each polymorphism \
+`ancestral_state.py`. This script outputs frequency of derived variants in \
+diploid sample. The output of this script is frequency of each polymorphism \
 with a derived allele.
 """
 
 import sys
 import gzip
 import pandas as pd
+
 
 def allele_freq(genos):
     """Count frequency of the derived variant."""
@@ -46,8 +47,8 @@ def main(anc):
                 geno = tmp[6:]
                 # Only work with lines with at least one derived variant!
                 if ('AD' or 'DD' in geno):
-                     # Call the frequency calculation function above.
-                     frequency = allele_freq(geno)
+                    # Call the frequency calculation function above.
+                    frequency = allele_freq(geno)
                 print(round(frequency, 3))
     return
 
