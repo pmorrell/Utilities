@@ -16,7 +16,7 @@ import pandas as pd
 
 def allele_freq(genos):
     """Count frequency of the derived variant."""
-    # The line below uses a pandas function
+    # The line below uses a pandas function, this is a little fragile!
     counts = dict(pd.value_counts(genos))
     # Missing genotypes need to be subtracted to get an accurate derived frequency.
     missing_key = 'NN'
