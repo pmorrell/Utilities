@@ -18,21 +18,24 @@ def allele_freq(genos):
     """Count frequency of the derived variant."""
     # The line below uses a pandas function, this is a little fragile!
     counts = dict(pd.value_counts(genos))
-#    derived_key = 'DD'
-#    if derived_key not in counts:
-#        continue
-#    else:
-#        continue
-    # Missing genotypes need to be subtracted to get an accurate derived frequency.
+# Missing genotypes need to be subtracted to get an accurate derived frequency.
     missing_key = 'NN'
-    if missing_key in counts:
-        observ = (len(genos) * 2) - (counts['NN'] * 2)
+    for missing_key in counts:
+        missing_count = counts['NN']
+        if missing_count == len(genos):
+            continue
+        else:
+            observ = (len(genos) * 2) - (counts['NN'] * 2)
     else:
         observ = (len(genos) * 2)
     # Count heterozygotes so those genotypes also get an accurate count.
     het_key = 'AD'
+    derive_key = 'DD'
     if het_key in counts:
-        freq = (((counts['AD']) + (counts['DD'] * 2)) / observ)
+        if derive_key not in counts:
+            freq = counts['AD'] / observ
+        else:
+            freq = (((counts['AD']) + (counts['DD'] * 2)) / observ)
     else:
         freq = (counts['DD'] * 2 / observ)
     return freq
