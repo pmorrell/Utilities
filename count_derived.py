@@ -11,14 +11,16 @@ with a derived allele.
 
 import sys
 import gzip
-import pandas as pd
+# import pandas as pd
 
 
 def allele_freq(genos):
     freq = 0
+    observ = 0
     """Count frequency of the derived variant."""
     # The line below uses a pandas function, this is a little fragile!
-    counts = dict(pd.value_counts(genos))
+    # counts = dict(pd.value_counts(genos))
+    counts = {x: genos.count(x) for x in genos}
 # Missing genotypes need to be subtracted to get an accurate derived frequency.
     missing_key = ['NN']
     ancest_key = ['AA']
@@ -35,16 +37,18 @@ def allele_freq(genos):
         #    If nothing but missing data and ancestral state, go to next SNP!
         #    The sum function flattens the nested lists
         elif temp_keys == sum([ancest_key, missing_key], []):
-                continue
+            continue
         else:
             #    Calculate sample sizes adjusting for missing data
             for missing_key[0] in counts:
-                missing_count = counts[missing_key[0]]
+                missing_count = (counts[missing_key[0]] * 2)
                 #   Again, if nothing but missing data (shouldn't get here!)
                 if missing_count == len(genos):
                     continue
                 elif missing_count > 0:
                     observ = (len(genos) * 2) - (counts[missing_key[0]] * 2)
+                elif counts[der_key[0]] == len(genos):
+                    observ = (len(genos) * 2)
                 else:
                     observ = (len(genos) * 2)
     # Count heterozygotes so those genotypes also get an accurate count.
