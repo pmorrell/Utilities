@@ -2,8 +2,8 @@
 # Peter L. Morrell - Falcon Heights, MN - 22 July 2021
 
 """
-Read in large file listing the ancestral state of each SNP as 'AA' or 'DD'. \
-This file is created using a VCF and ancestral state estimates, using \
+Read in large file listing the ancestral state of each SNP as 'AA', 'AD' or \
+'DD'. This file is created using a VCF and ancestral state estimates, using \
 `ancestral_state.py`. This script outputs frequency of derived variants in \
 diploid sample. The output of this script is frequency of each polymorphism \
 with a derived allele.
@@ -40,7 +40,7 @@ def allele_freq(genos):
             continue
         else:
             #    Calculate sample sizes adjusting for missing data
-            for missing_key[0] in counts:
+            if missing_key[0] in counts:
                 missing_count = (counts[missing_key[0]] * 2)
                 #   Again, if nothing but missing data (shouldn't get here!)
                 if missing_count == len(genos):
@@ -49,8 +49,8 @@ def allele_freq(genos):
                     observ = (len(genos) * 2) - (counts[missing_key[0]] * 2)
                 elif counts[der_key[0]] == len(genos):
                     observ = (len(genos) * 2)
-                else:
-                    observ = (len(genos) * 2)
+            else:
+                observ = (len(genos) * 2)
     # Count heterozygotes so those genotypes also get an accurate count.
         if het_key[0] in counts:
             if der_key[0] not in counts:
