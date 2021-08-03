@@ -82,6 +82,7 @@ def main(anc, snps_vcf):
             else:
                 tmp = line.strip().split()
                 key = tmp[0] + ':' + tmp[1]
+                snpid = tmp[0] + '_' + tmp[1]
                 ref = tmp[3]
                 alt = tmp[4]
                 samp = tmp[9:]
@@ -95,7 +96,7 @@ def main(anc, snps_vcf):
                 genos, derived = polarize(ref, alt, ancestral, samp)
                 # Print out the chrom, pos, ancestral, derived, morex state, and
                 # the polarized letters for the samples
-                print('\t'.join([tmp[0], tmp[1], tmp[2], ancestral, derived, morex] + genos))
+                print('\t'.join([tmp[0], tmp[1], snpid, ancestral, derived, morex] + genos))
     return
 
 
