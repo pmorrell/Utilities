@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # Peter L. Morrell - Falcon Heights, MN - 06 August 2021
+# Subset the large ancestral state table to calculate derived frequencies.
 
 import os.path
 import sys
 import gzip
 import pandas as pd
+
 
 def read_list(s):
     sample_list = []
@@ -21,6 +23,7 @@ basename = os.path.basename(fn)
 basename = os.path.splitext(basename)[0]
 sample_file = "Ancestral_state_" + basename + ".txt.gz"
 
+
 def main(samples, ancestral):
     """Main function."""
     # Then iterate through the derived VCF and print out the relevant fields
@@ -29,10 +32,10 @@ def main(samples, ancestral):
     df_out = df[["Chromosome", "Pos", "SNPID", "Ancestral", "Derived", "Reference"] + retain]
     df_out.to_csv(sample_file, sep='\t', index = False, compression = 'gzip')
 
-
-
 if len(sys.argv) != 3:
-    print("""Print the frequency of each variant with derived state information.
+    print("""Take a list of samples to cut down and the large file of \
+    ancestral state for each individual and produces table with only the \
+    listed samples retained.
     Takes one argument:
     1) List of samples to cut from data set
     2) Ancestral state file (gzipped)""")
