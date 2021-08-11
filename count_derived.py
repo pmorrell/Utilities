@@ -4,7 +4,8 @@ Read in large file listing the ancestral state of each SNP as 'AA', 'AD' or \
 'DD'. This file is created using a VCF and ancestral state estimates, using \
 `ancestral_state.py`. This script outputs frequency of derived variants in \
 a diploid sample. The output of this script is the frequency of each \
-polymorphism with a derived allele.
+polymorphism with a derived allele and a list of SNPs and genotypes at \
+>95% frequency.
 
 Usage: ./count_derived.py [anc] [out_dir]
 
@@ -28,6 +29,7 @@ Where:
 import sys
 import os
 import gzip
+
 
 def allele_freq(genos):
     """Count frequency of the derived variant.
