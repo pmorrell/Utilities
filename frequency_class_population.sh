@@ -1,5 +1,5 @@
 #!//usr/bin/bash -l
-#SBATCH --time=36:00:00
+#SBATCH --time=24:00:00
 #SBATCH --ntasks=8
 #SBATCH --mem=10g
 #SBATCH --tmp=10g
@@ -15,8 +15,8 @@ set -euf
 set -o pipefail
 
 #    for example /panfs/roc/groups/9/morrellp/pmorrell/Workshop/Fagioli/Ancestral_state/SNPID/Fagioli_stops.anc_SNPID.txt
-SNPID=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Fagioli/Ancestral_state/SNPID/Fagioli_syn.anc_uniq_SNPID.txt
-OUTFILE_BASE=_synonymous.txt
+SNPID=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Fagioli/Ancestral_state/SNPID/Fagioli_tolerated.an_uniq_SNPID.txt
+OUTFILE_BASE=_tolerated.txt
 WORKDIR=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Fagioli/Ancestral_state/SNPID/
 
 TRIM=/panfs/roc/groups/9/morrellp/pmorrell/Apps/TKono/Deleterious_GP/Analysis_Scripts/Data_Handling/Trim_Ancestral.py
@@ -24,7 +24,7 @@ TRIM=/panfs/roc/groups/9/morrellp/pmorrell/Apps/TKono/Deleterious_GP/Analysis_Sc
 
 cd ${WORKDIR}
 #declare -A DERIVED_ARRAY
-DERIVED_ARRAY=(Ancestral_state_Fagioli_A1.txt.gz  Ancestral_state_Fagioli_A2.txt.gz  Ancestral_state_Fagioli_A3.txt.gz  Ancestral_state_Fagioli_M1.txt.gz  Ancestral_state_Fagioli_M2.txt.gz)
+DERIVED_ARRAY=(Ancestral_state_Fagioli_A3.txt.gz)
 
 for i in ${DERIVED_ARRAY[@]}
  do
