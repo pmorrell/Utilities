@@ -80,7 +80,7 @@ def do_freq_counts(f, out_dir):
                 frequency = allele_freq(geno)
                 der_dict[snpid] = [snpid, str(round(frequency, 4))]
                 # Identify SNPs close to fixation
-                if frequency > 0.95:
+                if frequency > 0.9999:
                     fixation[snpid] = geno
     # Minimize the number of times output file is opened
     # Save derived frequency
