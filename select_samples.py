@@ -21,7 +21,7 @@ def read_list(s):
 fn = sys.argv[1]
 basename = os.path.basename(fn)
 basename = os.path.splitext(basename)[0]
-sample_file = "Ancestral_state_" + basename + ".txt.gz"
+sample_file = basename + "ancestral.txt.gz"
 
 
 def main(samples, ancestral):
