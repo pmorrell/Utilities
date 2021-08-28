@@ -39,7 +39,7 @@ def main(samples, ancestral):
     df_out.to_csv(sample_file, sep='\t', index=False, compression='gzip')
 
 
-if len(sys.argv) != 3:
+if len(sys.argv) <= 2:
     print("""Take a list of samples to cut down and the large file of \
     ancestral state for each individual and produces table with only the \
     listed samples retained.
