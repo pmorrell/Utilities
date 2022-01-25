@@ -20,9 +20,9 @@ OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/WBDC_inversions/Compare_de_
 # Check if our dir exists, if not make it
 mkdir -p ${OUT_DIR}
 
-# Go into reference dir
+# Go into output directory
 cd ${OUT_DIR}
 
-# Align with minimap
-# The '-a' option is for long reads against a reference
+# Add MD tag to BAM alignment
+# The '-b' option is for BAM alignments
 samtools calmd -b --threads 4 ${BAM_FILE} --reference ${FASTA_FILE} > ${OUT_DIR}/${OUT_PREFIX}.bam
