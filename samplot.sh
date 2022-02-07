@@ -12,7 +12,7 @@
 
 #This script runs SamPlot according to https://github.com/ryanlayer/samplot
 
-#to use samplot
+#Not sure if I need a python version with biopyton or if it comes with the conda environment
 module load python3/3.7.4_anaconda2019.10
 conda activate samplot
 
