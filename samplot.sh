@@ -5,7 +5,7 @@
 #SBATCH --mem=20gb
 #SBATCH -t 00:10:00
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=gfrascar@umn.edu
+#SBATCH --mail-user=pmorrell@umn.edu
 #SBATCH -p ram1t
 #SBATCH -o %j.out
 #SBATCH -e %j.err
