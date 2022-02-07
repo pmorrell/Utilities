@@ -13,7 +13,7 @@
 #This script runs SamPlot according to https://github.com/ryanlayer/samplot
 
 #to use samplot
-source activate /home/morrellp/public/Software/anaconda3
+conda activate samplot
 
 cd /panfs/roc/groups/9/morrellp/pmorrell/Workshop/
 VCF=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/M01_temp.vcf
