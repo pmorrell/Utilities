@@ -13,6 +13,7 @@
 #This script runs SamPlot according to https://github.com/ryanlayer/samplot
 
 #to use samplot
+module python3/3.7.4_anaconda2019.10
 conda activate samplot
 
 cd /panfs/roc/groups/9/morrellp/pmorrell/Workshop/
