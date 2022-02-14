@@ -22,7 +22,7 @@ IMPORTANT=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Bar
 ANNOTATE=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Barley_Morex_V2_pseudomolecules_parts_missing.bed.gz
 
 #    Send our output here
-cd {OUT_DIR} || exit
+cd ${OUT_DIR} || exit
 
 #Samplot command line
 samplot vcf \
