@@ -2,9 +2,9 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=20gb
+#SBATCH --mem=64gb
 #SBATCH -t 02:00:00
-#SBATCH --mail-type=AL
+#SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
 #SBATCH -p ram1t
 #SBATCH -o %j.out
@@ -20,14 +20,15 @@ module load bcftools
 #    We will use a GFF file to find positions of core or noncore genes
 #    We can
 
-GFF3=
-VCF=
-OUT_DIR=
-CORE=
-NONCORE=
+GFF3=/panfs/roc/groups/9/morrellp/shared/Datasets/Cowpea_Pan/VunguiculataIT97K-499-35_v1.2/annotation/Vunguiculata_IT97K-499-35_v1.2.gene.gff3.gz
+VCF=/panfs/roc/groups/9/morrellp/shared/Datasets/Cowpea_Pan/VunguiculataIT97K-499-35_v1.2/SNPs/IT97K_combined_genotype_snps_filtered.g.vcf.gz
+OUT_DIR=/scratch.global/pmorrell/Cowpea_pan
+CORE=/panfs/roc/groups/9/morrellp/shared/Datasets/Cowpea_Pan/ITKcore.txt
+NONCORE=/panfs/roc/groups/9/morrellp/shared/Datasets/Cowpea_Pan/ITKnoncore.txt
 
 #    Cut the GFF3 file down to just gene positions to reduce our search space
-GENES=$(grep 'gene' ${GFF3})
+#    The GFF3 file was compressed already
+GENES=$(zgrep 'gene' ${GFF3})
 
 #    Create a sorted bed file with only CORE or only NONCORE gene positions
 CORE_POS=$(grep -E -f ${CORE} <(echo ${GENES}) | cut -f 1,4,5 | sort -k1,1 -k2,2n -k3,3n)
