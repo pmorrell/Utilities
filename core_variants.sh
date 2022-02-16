@@ -2,18 +2,18 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=64gb
+#SBATCH --mem=60gb
 #SBATCH -t 02:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
-#SBATCH -p ram1t
+#SBATCH -p small,large,ram1t
 #SBATCH -o %j.out
 #SBATCH -e %j.err
 
 set -e
 set -o pipefail
 
-module load bcftools
+module load bcftools/1.6
 
 
 #    This script is intended to partition a VCF file into "core" and "noncore" variants
@@ -31,9 +31,9 @@ NONCORE=/panfs/roc/groups/9/morrellp/shared/Datasets/Cowpea_Pan/ITKnoncore.txt
 GENES=$(zgrep 'gene' ${GFF3})
 
 #    Create a sorted bed file with only CORE or only NONCORE gene positions
-CORE_POS=$(grep -E -f ${CORE} <(echo ${GENES}) | cut -f 1,4,5 | sort -k1,1 -k2,2n -k3,3n)
-NONCORE_POS=$(grep -E -f ${NONCORE} <(echo ${GENES}) | cut -f 1,4,5| sort -k1,1 -k2,2n -k3,3n)
+CORE_POS=$(grep -E -f "${CORE}" <(echo "${GENES}") | cut -f 1,4,5 | sort -k1,1 -k2,2n -k3,3n)
+NONCORE_POS=$(grep -E -f "${NONCORE}" <(echo "${GENES}") | cut -f 1,4,5| sort -k1,1 -k2,2n -k3,3n)
 
 #    Use bcftools to cut the VCF down to individual SNPs within genes from each list
-bcftools --regions-file <(CORE_POS) ${VCF} --output-type z --output ${OUT_DIR}/CORE_vcf.gz
-bcftools --regions-file <(NONCORE_POS) ${VCF} --output-type z --output ${OUT_DIR}/NONCORE_vcf.gz
+bcftools view --regions-file <(${CORE_POS}) ${VCF} --output-type z --output-file ${OUT_DIR}/CORE_vcf.gz
+bcftools view --regions-file <(${NONCORE_POS}) ${VCF} --output-type z --output-file ${OUT_DIR}/NONCORE_vcf.gz

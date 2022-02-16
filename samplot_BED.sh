@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=20gb
 #SBATCH -t 00:10:00
-#SBATCH --mail-type=AL
+#SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
 #SBATCH -p ram1t
 #SBATCH -o %j.out
@@ -13,11 +13,13 @@
 set -e
 set -o pipefail
 
-#This script runs SamPlot according to https://github.com/ryanlayer/samplot
+#    This script runs SamPlot according to https://github.com/ryanlayer/samplot
 
-BED=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Barley_Mutants/
+BED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_diffs_from_ref.SVs_BND.bedpe
 OUT_DIR=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Barley_Mutants
+#    The gff3 converted to a bed file seems to work, gff3 did not
 IMPORTANT=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.all.parts.sorted.bed
+#    This bed file lists all intervals with 'Ns' in the reference genome
 ANNOTATE=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Barley_Morex_V2_pseudomolecules_parts_missing.bed.gz
 
 while IFS=$'\t' read -r -a array
