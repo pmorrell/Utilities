@@ -35,5 +35,5 @@ CORE_POS=$(grep -E -f "${CORE}" <(echo "${GENES}") | cut -f 1,4,5 | sort -k1,1 -
 NONCORE_POS=$(grep -E -f "${NONCORE}" <(echo "${GENES}") | cut -f 1,4,5| sort -k1,1 -k2,2n -k3,3n)
 
 #    Use bcftools to cut the VCF down to individual SNPs within genes from each list
-bcftools view --regions-file <(${CORE_POS}) ${VCF} --output-type z --output-file ${OUT_DIR}/CORE_vcf.gz
-bcftools view --regions-file <(${NONCORE_POS}) ${VCF} --output-type z --output-file ${OUT_DIR}/NONCORE_vcf.gz
+bcftools view --regions-file <(echo "${CORE_POS}") ${VCF} --output-type z --output-file ${OUT_DIR}/CORE_vcf.gz
+bcftools view --regions-file <(echo "${NONCORE_POS}") ${VCF} --output-type z --output-file ${OUT_DIR}/NONCORE_vcf.gz
