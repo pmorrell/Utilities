@@ -13,8 +13,7 @@
 set -e
 set -o pipefail
 
-module load bcftools/1.6
-
+module load bcftools/1.9
 
 #    This script is intended to partition a VCF file into "core" and "noncore" variants
 #    We will use a GFF file to find positions of core or noncore genes
@@ -31,9 +30,9 @@ NONCORE=/panfs/roc/groups/9/morrellp/shared/Datasets/Cowpea_Pan/ITKnoncore.txt
 GENES=$(zgrep 'gene' ${GFF3})
 
 #    Create a sorted bed file with only CORE or only NONCORE gene positions
-CORE_POS=$(grep -E -f "${CORE}" <(echo "${GENES}") | cut -f 1,4,5 | sort -k1,1 -k2,2n -k3,3n)
-NONCORE_POS=$(grep -E -f "${NONCORE}" <(echo "${GENES}") | cut -f 1,4,5| sort -k1,1 -k2,2n -k3,3n)
+grep -E -f "${CORE}" <(echo "${GENES}") | cut -f 1,4,5 | sort -k1,1 -k2,2n -k3,3n >${OUT_DIR}/CORE_POS.txt
+grep -E -f "${NONCORE}" <(echo "${GENES}") | cut -f 1,4,5| sort -k1,1 -k2,2n -k3,3n >${OUT_DIR}/NONCORE_POS.txt
 
 #    Use bcftools to cut the VCF down to individual SNPs within genes from each list
-bcftools view --regions-file <(echo "${CORE_POS}") ${VCF} --output-type z --output-file ${OUT_DIR}/CORE_vcf.gz
-bcftools view --regions-file <(echo "${NONCORE_POS}") ${VCF} --output-type z --output-file ${OUT_DIR}/NONCORE_vcf.gz
+bcftools view --regions-file ${OUT_DIR}/CORE_POS.txt ${VCF} --output-type z --output-file ${OUT_DIR}/CORE_vcf.gz
+bcftools view --regions-file ${OUT_DIR}/NONCORE_POS.txt ${VCF} --output-type z --output-file ${OUT_DIR}/NONCORE_vcf.gz
