@@ -18,7 +18,7 @@ k8=/panfs/roc/groups/9/morrellp/pmorrell/bin/k8-0.2.5/k8-Linux
 PAFTOOLS=/panfs/roc/groups/9/morrellp/shared/Software/minimap2/misc/paftools.js
 
 # The application and associated tools are all in the directory below
-OUT_DIR=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Soy_120/smoove/out_dir
+OUT_DIR=/scratch.global/pmorrell/Morex_v3/out_dir
 REFERENCE_FASTA=/scratch.global/pmorrell/Morex_v3/Morex_V3_chr5H.fasta.gz
 
 # Files and settings
