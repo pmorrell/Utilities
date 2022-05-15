@@ -19,7 +19,7 @@ PAFTOOLS=/panfs/roc/groups/9/morrellp/shared/Software/minimap2/misc/paftools.js
 
 # The application and associated tools are all in the directory below
 OUT_DIR=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Soy_120/smoove/out_dir
-REFERENCE_FASTA=/scratch.global/pmorrell/Morex_v3 Morex_V3_chr5H.fasta.gz
+REFERENCE_FASTA=/scratch.global/pmorrell/Morex_v3/Morex_V3_chr5H.fasta.gz
 
 # Files and settings
 PAF=/scratch.global/pmorrell/Morex_v3/OUH602_chr5H.paf
