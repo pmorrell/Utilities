@@ -5,6 +5,8 @@
 #SBATCH --tmp=10g
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
+#SBATCH -o %j.out                                                                                                                                                    
+#SBATCH -e %j.err
 
 # A script for genome-wide estimation of sequencing depth from a single sample.
 
