@@ -27,7 +27,8 @@ reference_fasta=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequenc
 
 # BAM file, reference, and processor count
 # Only 1 or 2 threads are useful
-BAM=/panfs/roc/groups/9/morrellp/shared/Datasets/10x_Genomics/Soybean/m92_220/M92_220_phased_possorted_bam.bam
+#BAM=/panfs/roc/groups/9/morrellp/shared/Datasets/10x_Genomics/Soybean/m92_220/M92_220_phased_possorted_bam.bam
+BAM=/scratch.global/pmorrell/M92_220_phased_possorted_bam_chroms.bam
 SAMPLE_NAME=M92_220  
 threads=2
 
