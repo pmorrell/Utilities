@@ -10,7 +10,7 @@ import pandas as pd
 
 def read_list(s):
     sample_list = []
-    with open(s, 'rt') as f:
+    with gzip.open(s, 'rt') as f:
         for line in f:
             if line.startswith('#'):
                 continue
@@ -33,9 +33,9 @@ def main(samples, ancestral):
     retain = read_list(samples)
     df = pd.read_csv(ancestral, compression='gzip', header=0, sep='\t')
     df_out = df[["Chromosome", "Pos", "SNPID", "Ancestral", "Derived", "Reference"] + retain]
-    sample, variant_class = file_name(samples, ancestral)
+    sample = file_name(samples)
     variant_class = file_name(ancestral)
-    sample_file = sample + '_' + variant_class + 'anc.txt.gz'
+    sample_file = sample + '_' + variant_class + '_' + 'anc.txt.gz'
     df_out.to_csv(sample_file, sep='\t', index=False, compression='gzip')
 
 
@@ -44,7 +44,7 @@ if len(sys.argv) <= 2:
     ancestral state for each individual and produces table with only the \
     listed samples retained.
     Takes one argument:
-    1) List of samples to cut from data set
+    1) List of samples to cut from data set (gzipped)
     2) Ancestral state file (gzipped)""")
     exit(1)
 else:

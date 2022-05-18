@@ -1,9 +1,10 @@
 #!//usr/bin/bash -l
-#SBATCH --time=24:00:00
+#SBATCH --time=8:00:00
 #SBATCH --ntasks=8
 #SBATCH --mem=32g
 #SBATCH --tmp=32g
 #SBATCH --mail-type=ALL
+#SBATCH -p small
 #SBATCH --mail-user=pmorrell@umn.edu
 
 # A script to identify the proportion of variants that are in coding sequence.
@@ -14,9 +15,9 @@
 set -euf
 set -o pipefail
 
-module load bedtools/2.29.2
+module load bedtools_ML/2.28.0
 
-OUTDIR=/panfs/roc/groups/9/morrellp/shared/Projects/Selective_Sweeps
+OUTDIR=/panfs/roc/groups/9/morrellp/shared/Projects/Selective_Sweeps/VeP
 OUTFILE=code_variants.txt
 
 bedtools intersect -wa -wb \

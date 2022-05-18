@@ -1,19 +1,18 @@
 #!/bin/bash
 # script by Peter L. Morrell, original 11 August 2011, St. Paul, MN
+# updated to use Morex_v2
 
 #PBS -l mem=1000mb,nodes=1:ppn=1,walltime=48:00:00
 #PBS -m abe
 #PBS -M pmorrell@umn.edu
 
-module load ncbi_blast
+module load ncbi_blast+/2.8.1
 
 # path to working directory
 DIR=~/workshop/sandbox
 
 # path to blast database
-#BLAST_DB=~/scratch/Morex_BACs_Close.fa
-BLAST_DB=~/shared/References/BLAST_Databases/Morex/Morex_Blast
-#EXTENSION=XML
+BLAST_DB=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules.fasta
 EXTENSION='txt'
 
 cd $DIR

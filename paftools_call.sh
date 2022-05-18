@@ -18,11 +18,11 @@ k8=/panfs/roc/groups/9/morrellp/pmorrell/bin/k8-0.2.5/k8-Linux
 PAFTOOLS=/panfs/roc/groups/9/morrellp/shared/Software/minimap2/misc/paftools.js
 
 # The application and associated tools are all in the directory below
-OUT_DIR=/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Soy_120/smoove/out_dir
+OUT_DIR=/scratch.global/pmorrell/Morex_v3/out_dir
 REFERENCE_FASTA=/scratch.global/pmorrell/Morex_v3/Morex_V3_chr5H.fasta.gz
 
 # Files and settings
-PAF=/scratch.global/pmorrell/Morex_v3/OUH602_chr5H.paf
+PAF=/scratch.global/pmorrell/Morex_v3/out_dir/OUH602_chr5H.paf
 SAMPLE_NAME=OUH602_Chr5H
 threads=2
 MIN_LENGTH_COVERAGE=5000
@@ -36,5 +36,4 @@ cd ${OUT_DIR}
 
 # A minimum set of positions for calling variants. Not including an "excludes" file with problematic regions
 sort -k6,6 -k8,8n ${PAF} | \
-${k8} ${PAFTOOLS} call -f ${REFERENCE_FASTA} -s ${SAMPLE_NAME} -l ${MIN_LENGTH_COVERAGE} -L ${MIN_LENGTH_VARIANTS} \
-> ${SAMPLE_NAME}.vcf
+${k8} ${PAFTOOLS} call -f ${REFERENCE_FASTA} -s ${SAMPLE_NAME} -l ${MIN_LENGTH_COVERAGE} -L ${MIN_LENGTH_VARIANTS} > ${SAMPLE_NAME}.vcf
