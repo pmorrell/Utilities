@@ -5,35 +5,41 @@
 #SBATCH --tmp=10g
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
-#SBATCH -o %j.out                                                                                                                                                    
-#SBATCH -e %j.err
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %A_%a.out
+#SBATCH -e %A_%a.err
 
-# A script for genome-wide estimation of sequencing depth from a single sample.
-
-#   Written by Peter L. Morrell
-#   12 July 2021, Falcon Heights, MN
+# A script for processing BAM files to get exome coverage estimation
+# Origninal version Peter L. Morrell, 12 July 2021, Falcon Heights, MN
+# Updated by Chaochih Liu & Derell Scott, May 2022
 
 set -euf
 set -o pipefail
 
-MOSDEPTH=/panfs/roc/groups/9/morrellp/shared/Software/mosdepth/mosdepth
+# Dependencies
+# Mosdepth version 0.3.3
+export PATH=${PATH}:/panfs/roc/groups/9/morrellp/shared/Software/mosdepth
 
-# Output files are required to have a prefix.
-OUT_PREFIX=WBDC355_Nanopore
-
-# Output directory
-OUT_DIR=/scratch.global/pmorrell/WBDC355_Nanopore
-
+# Create list of BAM files, this is user provided input
+# Use one of these approaches: `find /path/to/dir -type f > listOfFiles.list` or `ls -d "$PWD"/* > listOfFiles.list`
+BAM_LIST="/panfs/roc/groups/9/morrellp/scot1101/Workshop/WBDC_125bp_MP005.txt"
 # The size of the window in bp for coverage estimation.
-INCREMENT=500
+INCREMENT=100
+REF_FASTA="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
+OUT_DIR="/scratch.global/pmorrell/Morex_v3"
 
-BAM=/panfs/roc/groups/9/morrellp/shared/Projects/WBDC_inversions/nanopore/WBDC_355/WBDC_combined_1_10/WBDC_355_v3/bam_file/WBDC_355_1_10_v3_sorted.bam
-
-# Check if our dir exists, if not make it
+#------------------
 mkdir -p ${OUT_DIR}
-
-# Go into the 
+# Go into out directory
 cd ${OUT_DIR}
+# Prepare array
+BAM_ARR=($(cat ${BAM_LIST}))
 
-# The threads option is for compression. Don't increase beyond 4, it doesn't speedup the program!
-$MOSDEPTH --no-per-base --threads 4 --fast-mode --by $INCREMENT $OUT_PREFIX $BAM
+# Iterate through the BAM files and run Mosdepth on each
+for i in ${BAM_ARR[@]}
+do
+    echo "Currently processing bam file: ${i}"
+    # Strip the file to basename
+    SAMPLE_NAME=$(basename ${i} .bam)
+    mosdepth --by ${INCREMENT} --threads 4 --fast-mode --fasta ${REF_FASTA} --no-per-base ${SAMPLE_NAME} ${i}
+done
