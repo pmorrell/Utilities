@@ -25,9 +25,7 @@ FASTQ=(*.fastq.gz)
 
 for i in "${FASTQ[@]}"
     do
-        # echo "$i" >> FASTQ_lenghts.txt
         parallel "echo {} && gunzip -c {} | wc -l | awk '{d=\$1; print d/4;}'"\
          ::: "$i" >> $WORKING_DIR/FASTQ_lenghts.txt
-        #$BIOAWK -cfastx '{print $name, length($seq)}' "$i" >> $WORKING_DIR/FASTQ_lenghts.txt
     done
 
