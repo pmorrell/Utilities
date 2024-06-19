@@ -13,7 +13,7 @@ import tarfile
 Usage = """
 
 Usage:
-python archiver.py directory_name
+python tarchiver.py directory_name
 """
 
 if len(sys.argv) < 1:
