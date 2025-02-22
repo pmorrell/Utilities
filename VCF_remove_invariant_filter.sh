@@ -8,7 +8,7 @@
 #SBATCH -o %j.out
 #SBATCH -e %j.err
 
-# Original script from: Jacob Pacheco
+# Original script from: Jacob Pacheco; modifications from Peter Morrell and GitHub Copilot
 
 set -e
 set -o pipefail
@@ -25,51 +25,48 @@ MAX_DEPTH=250 # Maximum depth to avoid regions with excessive coverage
 MQSBZ=3     # Mapping Quality Strand Bias Z-score
 RPBZ=3      # Read Position Bias Z-score    
 
-
 # Filter parameters adjusted for ONT Nanopore data
 #MIN_MQ=10     # Lower minimum mapping quality for Nanopore data
-#$MIN_BQ=10     # Lower minimum base quality for Nanopore data
+#MIN_BQ=10     # Lower minimum base quality for Nanopore data
 #MIN_DEPTH=3   # Minimum depth for variant calling
 #MAX_DEPTH=100 # Maximum depth to avoid regions with excessive coverage
 #MQSBZ=5       # Adjusted Mapping Quality Strand Bias Z-score
 #RPBZ=5        # Adjusted Read Position Bias Z-score    
 
-
 # Load required modules
-
 module load bcftools_ML_2/1.20
 
 mkdir -p "${OUTPUT_DIR}/filtered_results"
+
+log() {
+    local msg="$1"
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - ${msg}"
+}
 
 process_sample() {
     local VCF_FILE=$1
     local SAMPLE_NAME
     SAMPLE_NAME=$(basename "${VCF_FILE}" .vcf.gz)
-    echo "Processing sample (chromosome): ${SAMPLE_NAME}"
+    log "Processing sample (chromosome): ${SAMPLE_NAME}"
 
-    # create dir
-
+    # Create directory
     mkdir -p "${OUTPUT_DIR}/filtered_results/${SAMPLE_NAME}"
     local OUTPUT_PREFIX="${OUTPUT_DIR}/filtered_results/${SAMPLE_NAME}"
 
-    # check if VCF exist
+    # Check if VCF exists
     if ! bcftools view -h "${VCF_FILE}" > /dev/null 2>&1; then
-        echo "ERROR: ${VCF_FILE} is not a valid VCF file or is corrupted."
+        log "ERROR: ${VCF_FILE} is not a valid VCF file or is corrupted."
         return 1
     fi
 
     # Step 1: Remove invariant sites
-    # The -c 1 flag ensures that only sites with at least one alternate allele are kept.
-    # The --max-allele 2 flag ensures that only biallelic sites are kept.
-    # The --exclude-types indels flag removes indels.
-
-    echo "   -> Filtering for polymorphic, biallelic SNP sites"
+    log "   -> Filtering for polymorphic, biallelic SNP sites"
     intermediate_vcf=$(mktemp)
     bcftools view -c 1 --max-allele 2 --exclude-types indels -Oz -o "${intermediate_vcf}" "${VCF_FILE}"
     bcftools index "${intermediate_vcf}"
 
-     # Step 2: Apply additional filtering based on quality, depth, and strand bias
-    echo "   -> Applying quality, depth, and strand bias filters..."
+    # Step 2: Apply additional filtering based on quality, depth, and strand bias
+    log "   -> Applying quality, depth, and strand bias filters..."
     bcftools filter -e "QUAL<${MIN_BQ} || MQ<${MIN_MQ} || INFO/DP<${MIN_DEPTH} || INFO/DP>${MAX_DEPTH} || INFO/MQSBZ>${MQSBZ} || INFO/RPBZ>${RPBZ}" \
         -Oz \
         -o "${OUTPUT_PREFIX}.filtered.vcf.gz" \
@@ -78,12 +75,13 @@ process_sample() {
 
     # Clean up intermediate file
     rm "${intermediate_vcf}"
-    echo "Finished processing ${SAMPLE_NAME}"
+    log "Finished processing ${SAMPLE_NAME}"
 }
 
 # Process all VCF files in the input directory (per chromosome)
-echo "Looking for VCF files in ${INPUT_DIR}..."
+log "Looking for VCF files in ${INPUT_DIR}..."
 find "${INPUT_DIR}" -name "*.vcf.gz" | while read -r VCF_FILE; do
     process_sample "${VCF_FILE}"
 done
 
+log "All samples processed."
