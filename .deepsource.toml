@@ -6,3 +6,12 @@ enabled = true
 
   [analyzers.meta]
   runtime_version = "3.x.x"
+
+version = 1
+
+[[analyzers]]
+name = "shell"
+enabled = true
+
+  [analyzers.meta]
+    dialect = "zsh"
