@@ -15,7 +15,7 @@ set -o pipefail
 
 
 VCF01="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test/filtered_results/WBDC355_10X_chr1H.filtered.vcf.gz"
-VCF02="/scratch.global/pmorrell/Inversions/WBDC355_ONT_SNPS/test/filtered_results/WBDC355_ONT_chr1H.filtered.vcf.gz"
+VCF02="/scratch.global/pmorrell/Inversions/BOPA_WBDC355.vcf.gz"
 OUTPUT_DIR="/scratch.global/pmorrell/Inversions/BOPA_intersect"
 
 # Load required modules
