@@ -1,8 +1,8 @@
 #!/bin/bash -l
-#SBATCH --time=28:00:00
+#SBATCH --time=2:00:00
 #SBATCH --ntasks=5
-#SBATCH --mem=100g
-#SBATCH --tmp=100g
+#SBATCH --mem=24g
+#SBATCH --tmp=24g
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
 #SBATCH -o %j.out
@@ -14,16 +14,16 @@ set -e
 set -o pipefail
 
 # Load required modules
-module load bedtools_ML/2.30.0
+module load bedtools/2.29.2
+module load bcftools_ML_2/1.20
 
-INPUT_DIR="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test"
-OUTPUT_DIR="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test"
+INPUT_DIR="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test/filtered_results"
+OUTPUT_DIR="/scratch.global/pmorrell/Inversions"
 INTERVAL=1000 # Interval to extend gene positions
-GFF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/MorexV3.1-2019-05-30.gff3"
-REFERENCE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta"
+GFF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/gene_annotation/Hv_Morex.pgsb.Jul2020.sorted.gff3"
+REFERENCE_INDEX="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta.fai"
 
-
-mkdir -p "${OUTPUT_DIR}/filtered_results"
+mkdir -p "${OUTPUT_DIR}"
 
 log() {
     local msg="$1"
@@ -37,28 +37,27 @@ process_genes() {
     intermediate_bed=$(mktemp)
     awk '$3 == "gene" {print $1"\t"$4-1"\t"$5}' "${GFF}" > "${intermediate_bed}"
     intermediate_bed2=$(mktemp)
-    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE}" -b "${INTERVAL}" > "${intermediate_bed2}"
-    
+    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -b "${INTERVAL}" > "${intermediate_bed2}"
+
     # Step 2: Identify SNPs that overlap with gene intervals
     log "   -> Partition VCF for gene intervals only"
     local VCF_FILE=$1
     local SAMPLE_NAME
     SAMPLE_NAME=$(basename "${VCF_FILE}" .vcf.gz)
     log "Processing VCF (chromosome): ${SAMPLE_NAME}"
-    bcftools index "${VCF_FILE}"
-    bcftools view -R "${intermediate_bed2}" -Oz -o "${OUTPUT_PREFIX}.genes.vcf.gz" "${VCF_FILE}"
-    bcftools index "${OUTPUT_PREFIX}.genes.vcf.gz"
+    # bcftools index -f "${VCF_FILE}"
+    bcftools view -R "${intermediate_bed2}" -Oz -o "${OUTPUT_DIR}/${SAMPLE_NAME}.genes.vcf.gz" "${VCF_FILE}"
+    bcftools index -f "${OUTPUT_DIR}/${SAMPLE_NAME}.genes.vcf.gz"
+
+    # Clean up intermediate files
+    rm "${intermediate_bed}" "${intermediate_bed2}"
+    log "Finished processing ${SAMPLE_NAME}"
 }
 
 # Process all VCF files in the input directory (per chromosome)
 log "Looking for VCF files in ${INPUT_DIR}..."
 find "${INPUT_DIR}" -name "*.vcf.gz" | while read -r VCF_FILE; do
-    process_sample "${VCF_FILE}"
+    process_genes "${VCF_FILE}"
 done
 
 log "All samples processed."
-
-
-    # Clean up intermediate files
-    rm "${intermediate_vcf}"
-    log "Finished processing ${SAMPLE_NAME}"
