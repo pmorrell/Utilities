@@ -13,13 +13,14 @@ set -o pipefail
 
 # Peter L. Morrell - 23 February 2025 - St. Paul, MN
 
-module load bedtools_ML/2.30.0
+module load bedtools2/2.31.0-gcc-8.2.0-7j35k74
 
-INPUT_DIR="/scratch.global/pmorrell/Inversions/"
+INPUT_DIR="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test/filtered_results"
 OUTPUT_DIR="/scratch.global/pmorrell/Inversions/PlantCaduceus"
 REFERENCE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta"
+REFERENCE_INDEX="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta.fai"
 
-mkdir -p "${OUTPUT_DIR}/filtered_results"
+mkdir -p "${OUTPUT_DIR}"
 
 log() {
     local msg="$1"
@@ -35,23 +36,25 @@ process_vcfs() {
 
     local intermediate_bed
     intermediate_bed=$(mktemp)
-    zcat "${VCF_FILE}" | grep -v '#' | awk -v OFS='\t' '{print $1, $2-254, $2+257, $2, $3, $4}' > "${intermediate_bed}"
+    zcat "${VCF_FILE}" | grep -v '#' | awk -v OFS='\t' '{print $1, $2-255, $2+257, $2, $4, $5}' >temp.bed
 
     log "   -> Generating intervals"
     local intermediate_bed2
     intermediate_bed2=$(mktemp)
-    bedtools slop -i "${intermediate_bed}" -g Barley_MorexV3_pseudomolecules.txt -l 254 -r 257 > "${intermediate_bed2}"
+    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -l 254 -r 257 > "${intermediate_bed2}"
 
     log "   -> Generating contextual sequence"
-    local intermediate_bed3
-    intermediate_bed3=$(mktemp)
-    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -bedOut > "${intermediate_bed3}"
-
+    local intermediate_seq
+    intermediate_seq=$(mktemp)
+    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -bedOut | cut -f 4  > temp.fas
+    # cat "${intermediate_seq}"
+    
+    log "   -> Create the output file"
     local header="chr\tstart\tend\tpos\tref\talt\tsequences"
     echo -e "${header}" > "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
-    paste "${intermediate_bed}" "${intermediate_bed3}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
+    #paste "${intermediate_bed}" "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
 
-    rm "${intermediate_bed}" "${intermediate_bed2}" "${intermediate_bed3}"
+    rm "${intermediate_bed}" "${intermediate_bed2}" "${intermediate_seq}"
 }
 
 log "Looking for VCF files in ${INPUT_DIR}..."
