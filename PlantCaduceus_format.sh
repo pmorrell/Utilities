@@ -36,7 +36,7 @@ process_vcfs() {
 
     local intermediate_bed
     intermediate_bed=$(mktemp)
-    zcat "${VCF_FILE}" | grep -v '#' | awk -v OFS='\t' '{print $1, $2-255, $2+257, $2, $4, $5}' >temp.bed
+    zcat "${VCF_FILE}" | grep -v '#' | awk -v OFS='\t' '{print $1, $2-255, $2+257}' > "${intermediate_bed}"
 
     log "   -> Generating intervals"
     local intermediate_bed2
@@ -46,13 +46,12 @@ process_vcfs() {
     log "   -> Generating contextual sequence"
     local intermediate_seq
     intermediate_seq=$(mktemp)
-    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -bedOut | cut -f 4  > temp.fas
-    # cat "${intermediate_seq}"
+    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -bedOut > "${intermediate_seq}"
     
     log "   -> Create the output file"
     local header="chr\tstart\tend\tpos\tref\talt\tsequences"
     echo -e "${header}" > "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
-    #paste "${intermediate_bed}" "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
+    echo -e "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
 
     rm "${intermediate_bed}" "${intermediate_bed2}" "${intermediate_seq}"
 }
