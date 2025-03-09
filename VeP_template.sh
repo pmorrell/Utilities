@@ -13,7 +13,7 @@
 # It requires a VCF, GFF, and fasta file as input
 
 #Dependencies
-module load htslib/1.9  
+module load htslib/1.16-gcc-8.2.0-x236tnl 
 module load perl/modules.centos7.5.26.1
 
 VEP="/panfs/jay/groups/9/morrellp/shared/Software/ensembl-vep-release-108.1/vep"
@@ -44,5 +44,5 @@ cd "${OUT}"
     --verbose \
     --format vcf \
     --force \
-    --warning_file "${OUTPUT_PREFIX}_${VARIANT_SET}.txt" \
+    --warning_file "${OUTPUT_PREFIX}_${VARIANT_SET}_warnings.txt" \
     -o "${OUTPUT_PREFIX}_${VARIANT_SET}.txt"
