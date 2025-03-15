@@ -31,7 +31,7 @@ FASTA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley
 OUTPUT_PREFIX="${VCF%.vcf.gz}"
 
 # Specify out directory
-OUT="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/"
+OUT="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/
 cd "${OUT}"
 
 "${VEP}" \
