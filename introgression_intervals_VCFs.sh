@@ -21,16 +21,16 @@ log() {
 }
 
 # Load necessary modules
-module load bcftools
+# module load bcftools
 
 # Define the input files
-BED=
+BED=/Users/pmorrell/Library/CloudStorage/Dropbox/Documents/Work/Manuscripts/Wild_Introgression/Analyses/introgression_donors/introgression_intervals.bed
 # Genotyping data file
-VCF=
+VCF=/Users/pmorrell/Library/CloudStorage/Dropbox/Documents/Work/Manuscripts/Wild_Introgression/Analyses/introgression_donors/dom_and_wild_compare.vcf.gz
 # All samples to be included except the query (hybrid) sample
-SAMPLE_LIST=
+SAMPLE_LIST=/Users/pmorrell/Library/CloudStorage/Dropbox/Documents/Work/Manuscripts/Wild_Introgression/Analyses/introgression_donors/BOPA_cultivated_samples.txt
 
-OUTPUT_DIR="/scratch.global/pmorrell/"
+OUTPUT_DIR="/Users/pmorrell/Library/CloudStorage/Dropbox/Documents/Work/Manuscripts/Wild_Introgression/Analyses/introgression_donors/Results"
 
 log "   -> Generating list of samples for comparisons"
 SAMPLES=($(cut -f4 "${BED}" | sort -u))
@@ -55,6 +55,8 @@ create_sample_vcf() {
     log "   -> Generating output VCF"
     bcftools view -Oz -o "${OUTPUT_DIR}/${sample}.vcf.gz" --samples-file "${intermediate_list}" --regions-file "${intermediate_bed}" "${VCF}"
     bcftools index "${OUTPUT_DIR}/${sample}.vcf.gz"
+    log "   -> Count the number of SNPs in the VCF"
+    bcftools view -H "${OUTPUT_DIR}/${sample}.vcf.gz" | wc -l > "${OUTPUT_DIR}/${sample}_SNP_count.txt"
 }
 
 log "   -> Processing individual samples"
