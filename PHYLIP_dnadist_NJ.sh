@@ -14,7 +14,7 @@ set -e
 set -o pipefail
 
 # Load required modules
-module load phylip/3.69
+module load phylip/3.697
 
 INPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/PHYLIP/"  # Directory containing PHYLIP files
 OUTPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/trees"       # Directory to store output files
@@ -26,44 +26,42 @@ log() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - ${msg}"
 }
 
+   log "   -> Clean input and output directories"
+rm -f "${INPUT_DIR}/outfile" "${OUTPUT_DIR}/outfile" "${INPUT_DIR}/outtree" "${OUTPUT_DIR}/outtree" 
+
+
 process_phylip() {
     local PHYLIP_FILE=$1
     local BASENAME
-    BASENAME=$(basename "${PHYLIP_FILE}" .phy)
+    BASENAME=$(basename "${PHYLIP_FILE}" vcf.gz.min4.phy)
     log "Processing PHYLIP file: ${BASENAME}"
 
     # Step 1: Run dnadist
     log "   -> Running dnadist"
     expect <<EOF
 spawn dnadist
-expect "Input file:"
-send "${PHYLIP_FILE}\r"
-expect "Output file:"
-send "${OUTPUT_DIR}/${BASENAME}_dnadist.out\r"
-expect "Substitution model"
-send "F\r"  # Example: F for F84 model (modify as needed)
-expect "Transition/transversion ratio"
-send "2.01\r"  # Example: Set ratio to 2.01 (modify as needed)
-expect "Analyze another data set?"
-send "N\r"
+expect "dnadist: can't find input file "infile"\n Please enter a new file name> "
+send "${BASENAME}\r"
+expect "Y to accept these or type the letter for one to change"
+send "Y\r"
 expect eof
 EOF
+
+mv outfile "${BASENAME}.dist"
 
     # Step 2: Run neighbor
     log "   -> Running neighbor"
     expect <<EOF
 spawn neighbor
-expect "Input file:"
-send "${OUTPUT_DIR}/${BASENAME}_dnadist.out\r"
-expect "Output file:"
-send "${OUTPUT_DIR}/${BASENAME}_neighbor.out\r"
-expect "Tree file:"
-send "${OUTPUT_DIR}/${BASENAME}_treefile\r"
-expect "Analyze another data set?"
-send "N\r"
+expect "neighbor: can't find input file "infile"\n Please enter a new file name> "
+send "${BASENAME}.dist\r"
+expect " Y to accept these or type the letter for one to change"
+send "Y\r"
 expect eof
 EOF
 
+mv outtree "${OUTPUT_DIR}/${BASENAME}.tree"
+    
     log "Finished processing ${BASENAME}"
 }
 
