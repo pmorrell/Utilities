@@ -14,7 +14,7 @@ set -e
 set -o pipefail
 
 # Load required modules
-module load phylip/3.697
+module load phylip/3.69
 
 INPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/PHYLIP/"  # Directory containing PHYLIP files
 OUTPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/trees"       # Directory to store output files
