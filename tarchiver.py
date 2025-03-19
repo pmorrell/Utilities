@@ -1,47 +1,43 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 
-# 04 October 2018, Falcon Heights, MN
-# Peter L. Morrell - tired of manually creating tarred and bzipped archives
-# 24 April 2019, Falcon Heights, MN
-# Returned to this and got it to work!
+# Peter L. Morrell - A tool for creating tarred and bzipped archives
 
-# Needed for arguments below
 import os
 import sys
 import tarfile
 
-Usage = """
-
+USAGE = """
 Usage:
-python tarchiver.py directory_name
+    python tarchiver2.py directory_name
+    
+Creates a compressed tar archive (.tar.bz2) of the specified directory.
 """
 
-if len(sys.argv) < 1:
-    print(Usage)
-    exit(1)
+def make_tarfile(output_filename, source_dir):
+    """Create a compressed tar archive of the specified directory."""
+    with tarfile.open(output_filename, "w:bz2") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
+    print(f"Archive created: {output_filename}")
 
-#####
-#   Defining arguments
-#####
-#   A description of the program
-DESCR = """A Python tool for archiving directories. This was created to archive
-old projects that are taking up disk space.
+def main():
+    if len(sys.argv) < 2:
+        print(USAGE)
+        sys.exit(1)
+    
+    try:
+        directory_name = sys.argv[1]
+        
+        # Verify directory exists
+        if not os.path.isdir(directory_name):
+            print(f"Error: '{directory_name}' is not a directory or doesn't exist")
+            sys.exit(1)
+        
+        output_file = f"{os.path.basename(directory_name)}.tar.bz2"
+        make_tarfile(output_file, directory_name)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        sys.exit(1)
 
-Pass a directory as the only argument. The original directory is not modified,
-but a new file that is tarred and compressed with bzip2 is created. The tarred
-archive takes the name of the directory."""
-#   Create a new argument parser
-
-try:
-    directory_name = sys.argv[1]
-    #print(directory_name)
-except:
-    print('Please pass directory_name')
-
-
-tar = tarfile.open(directory_name + ".tar.bz2", "w:bz2")
-os.chdir(directory_name)
-for name in os.listdir(directory_name):
-    #print(name)
-    tar.add(name)
-tar.close()
+if __name__ == "__main__":
+    main()

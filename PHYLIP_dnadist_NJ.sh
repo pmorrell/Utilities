@@ -8,59 +8,78 @@
 #SBATCH -o %j.out
 #SBATCH -e %j.err
 
-# Peter L. Morrell - St. Paul, MN  -  18 March 2025
+# Peter L. Morrell - St. Paul, MN - 19 March 2025
 
 set -e
 set -o pipefail
 
+# Dependency checks
+command -v expect >/dev/null 2>&1 || { echo "Error: 'expect' is required but not installed."; exit 1; }
+
 # Load required modules
 module load phylip/3.697
 
-INPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/PHYLIP/"  # Directory containing PHYLIP files
-OUTPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/trees"       # Directory to store output files
+INPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/PHYLIP"
+OUTPUT_DIR="/scratch.global/pmorrell/Barley_Introgression/trees"
+TEMP_DIR="${SLURM_TMPDIR:-/tmp}/phylip_${SLURM_JOB_ID:-$$}"
 
-mkdir -p "${OUTPUT_DIR}"
+# Create directories
+mkdir -p "${OUTPUT_DIR}" "${TEMP_DIR}"
 
 log() {
     local msg="$1"
     echo "$(date +'%Y-%m-%d %H:%M:%S') - ${msg}"
 }
 
-   log "   -> Clean input and output directories"
-rm -f "${INPUT_DIR}/outfile" "${OUTPUT_DIR}/outfile" "${INPUT_DIR}/outtree" "${OUTPUT_DIR}/outtree" 
-
-
 process_phylip() {
     local PHYLIP_FILE=$1
-    local BASENAME
-    BASENAME=$(basename "${PHYLIP_FILE}" vcf.gz.min4.phy)
+    local BASENAME=$(basename "${PHYLIP_FILE}" .phy)
+    local WORK_DIR="${TEMP_DIR}/${BASENAME}"
+    
+    mkdir -p "${WORK_DIR}"
+    cp "${PHYLIP_FILE}" "${WORK_DIR}/infile"
+    
+    cd "${WORK_DIR}" || { log "Error: Cannot change to ${WORK_DIR}"; return 1; }
+    
     log "Processing PHYLIP file: ${BASENAME}"
 
     # Step 1: Run dnadist
     log "   -> Running dnadist"
     expect <<EOF
 spawn dnadist
-expect "dnadist: can't find input file "infile"\n Please enter a new file name> "
-send "${BASENAME}\r"
 expect "Y to accept these or type the letter for one to change"
 send "Y\r"
 expect eof
 EOF
 
-mv outfile "${BASENAME}.dist"
+    # Check if outfile was created
+    if [[ ! -f "outfile" ]]; then
+        log "Error: dnadist failed to create output file for ${BASENAME}"
+        return 1
+    fi
+    
+    mv outfile "infile"
 
     # Step 2: Run neighbor
     log "   -> Running neighbor"
     expect <<EOF
 spawn neighbor
-expect "neighbor: can't find input file "infile"\n Please enter a new file name> "
-send "${BASENAME}.dist\r"
-expect " Y to accept these or type the letter for one to change"
+expect "Y to accept these or type the letter for one to change"
 send "Y\r"
 expect eof
 EOF
 
-mv outtree "${OUTPUT_DIR}/${BASENAME}.tree"
+    # Check if tree was created
+    if [[ ! -f "outtree" ]]; then
+        log "Error: neighbor failed to create tree file for ${BASENAME}"
+        return 1
+    fi
+
+    # Copy final tree to output directory
+    cp "outtree" "${OUTPUT_DIR}/${BASENAME}.tree"
+    
+    # Cleanup work directory
+    cd "${TEMP_DIR}" || true
     
     log "Finished processing ${BASENAME}"
 }
@@ -70,5 +89,8 @@ log "Looking for PHYLIP files in ${INPUT_DIR}..."
 find "${INPUT_DIR}" -name "*.phy" | while read -r PHYLIP_FILE; do
     process_phylip "${PHYLIP_FILE}"
 done
+
+# Cleanup
+rm -rf "${TEMP_DIR}"
 
 log "All PHYLIP files processed."
