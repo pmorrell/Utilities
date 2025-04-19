@@ -46,6 +46,6 @@ if len(sys.argv) <= 2:
     Takes one argument:
     1) List of samples to cut from data set (gzipped)
     2) Ancestral state file (gzipped)""")
-    exit(1)
+    sys.exit(1)
 else:
     main(sys.argv[1], sys.argv[2])
