@@ -7,6 +7,7 @@
 
 import gzip
 import gffutils
+import sys
 
 def read_list(s):
     gene_list = []
@@ -50,6 +51,6 @@ if len(sys.argv) <= 2:
     print("""Take two input files, a list of genes to extract and gzipped GFF3 file.
     1) List of genes to cut from GFF3
     2) A GFF3 """)
-    exit(1)
+    sys.exit(1)
 else:
     main(sys.argv[1], sys.argv[2])
