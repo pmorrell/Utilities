@@ -29,7 +29,7 @@ Usage:
 #   Expects a filename as the only argument
 if not sys.argv[1:]:
     print(Usage)
-    exit(1)
+    sys.exit(1)
 
 #   Create a dictionary that will hold old and new file names
 file_data = {}

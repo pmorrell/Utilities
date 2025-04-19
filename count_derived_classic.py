@@ -86,6 +86,6 @@ if len(sys.argv) != 2:
     print("""Print the frequency of each variant with derived state information.
     Takes one argument:
     1) Ancestral state file (gzipped)""")
-    exit(1)
+    sys.exit(1)
 else:
     main(sys.argv[1])

@@ -106,6 +106,6 @@ the derived or ancestral alleles at each SNP. Both files must be anchored on
 the pseudomolecule assembly. Takes two arguments:
     1) Ancestral state list (gzipped)
     2) Non-ancestral VCF (gzipped)""")
-    exit(1)
+    sys.exit(1)
 else:
     main(sys.argv[1], sys.argv[2])

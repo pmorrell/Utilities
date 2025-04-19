@@ -23,7 +23,7 @@ python splitter.py -i filename -s [size]
 """
 if len(sys.argv) < 2:
     print(Usage)
-    exit(1)
+    sys.exit(1)
 
 #####
 #   Defining arguments

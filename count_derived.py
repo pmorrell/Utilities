@@ -123,6 +123,6 @@ def main(anc, out_dir):
 
 if len(sys.argv) <= 2:
     print(__doc__)
-    exit(1)
+    sys.exit(1)
 else:
     main(sys.argv[1], sys.argv[2])
