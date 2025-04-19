@@ -14,7 +14,7 @@ python inclusive_file exclusive_file out_directory
 
 if len(sys.argv) < 2:
     print(Usage)
-    exit(1)
+    sys.exit(1)
 
 #####
 #   Defining arguments
