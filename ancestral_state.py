@@ -52,11 +52,11 @@ def polarize(ref, alt, anc, samples):
             d = '0'
         for s in samples:
             gt = s.split(':')[0]
-            if gt == '.' or gt == './.':
+            if gt in ('.', './.'):
                 pol.append('NN')
             elif gt == a + '/' + a:
                 pol.append('AA')
-            elif (gt == a + '/' + d) or (gt == d + '/' + a):
+            elif gt in (a + '/' + d, d + '/' + a):
                 pol.append('AD')
             elif gt == d + '/' + d:
                 pol.append('DD')
