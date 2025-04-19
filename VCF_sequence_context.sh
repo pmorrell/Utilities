@@ -11,13 +11,14 @@
 set -e
 set -o pipefail
 
-# Peter L. Morrell - 23 February 2025 - St. Paul, MN
+# Peter L. Morrell - 17 April 2025 - St. Paul, MN
 
 module load bedtools2/2.31.0-gcc-8.2.0-7j35k74
 
 INPUT_DIR="/scratch.global/pmorrell/Selective_Sweeps"
 OUTPUT_DIR="/scratch.global/pmorrell/Selective_Sweeps"
 REFERENCE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules.fasta.gz"
+REFERENCE_INDEX="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules.fasta.gz.fai"
 SLOP="60"
 mkdir -p "${OUTPUT_DIR}"
 
@@ -31,26 +32,25 @@ process_vcfs() {
     local VCF_FILE="$1"
     local SAMPLE_NAME
     SAMPLE_NAME=$(basename "${VCF_FILE}" .vcf.gz)
-    log "Processing VCF (chromosome): ${SAMPLE_NAME}"
+    log "   -> Processing VCF (chromosome): ${SAMPLE_NAME}"
 
     local intermediate_bed
     intermediate_bed=$(mktemp)
     zcat < "${VCF_FILE}" | grep -v '#' | awk -v OFS='\t' '{print $1, $2-61, $2+60, $1_$2}' > "${intermediate_bed}"
 
-    #log "   -> Generating intervals"
-    #local intermediate_bed2
-    #intermediate_bed2=$(mktemp)
-    #bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -b "${SLOP}" > "${intermediate_bed2}"
+    log "   -> Generating intervals"
+    local intermediate_bed2
+    intermediate_bed2=$(mktemp)
+    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -b "${SLOP}" > "${intermediate_bed2}"
 
     log "   -> Generating contextual sequence output"
-    local intermediate_seq
     intermediate_seq=$(mktemp)
-    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -name -fo "${OUT_DIR}/${SAMPLE_NAME}.fasta" 
+    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -nameOnly -fo "${OUTPUT_DIR}/${SAMPLE_NAME}.fasta" 
 }
 
-log "Looking for VCF files in ${INPUT_DIR}..."
+log "   -> Looking for VCF files in ${INPUT_DIR}..."
 find "${INPUT_DIR}" -name "*.vcf.gz" | while read -r VCF_FILE; do
     process_vcfs "${VCF_FILE}"
 done
 
-log "All samples processed."
+log "   -> All samples processed."
