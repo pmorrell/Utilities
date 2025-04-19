@@ -5,7 +5,6 @@
 
 
 
-import gzip
 import gffutils
 
 def read_list(s):

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import re
 import gzip
 
 def is_gzipped(filepath):
