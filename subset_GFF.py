@@ -5,7 +5,6 @@
 
 
 
-import gzip
 import gffutils
 import sys
 

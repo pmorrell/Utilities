@@ -3,7 +3,6 @@
 # Peter L. Morrell -
 
 # Needed for arguments below
-import os
 import sys
 
 Usage = """
