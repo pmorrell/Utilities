@@ -175,3 +175,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     create_illumina_format(args.fasta, args.vcf, args.position, args.output, args.flank)
     print(f"Illumina format file created: {args.output}")
+
