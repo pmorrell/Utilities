@@ -66,3 +66,4 @@ find "${INPUT_DIR}" -name "*.vcf.gz" | while read -r VCF_FILE; do
 done
 
 log "   -> All samples processed."
+
