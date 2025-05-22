@@ -37,22 +37,22 @@ process_vcfs() {
     # First use bedtools slop directly on VCF to extend regions
     log "  -> Extracting SNP positions from the VCF"
     local SNP_positions=$(mktemp)
-    zgrep -v '#' "${VCF_FILE}" | awk -v OFS='\t' '{print $1, $2-1, $2, $2-1, $4, $5}' > "${SNP_positions}"
+    zgrep -v '#' "${VCF_FILE}" | awk -v OFS='\t' '{print $1, $2-1, $2, $2, $4, $5}' > "${SNP_positions}"
 
     log "   -> Extending regions to create 512bp windows with SNP at position 256"
     local extended_regions=$(mktemp)
-    bedtools slop -i "${SNP_positions}" -g "${REFERENCE_INDEX}" -l 256 -r 255 > "${extended_regions}"
+    bedtools slop -i "${SNP_positions}" -g "${REFERENCE_INDEX}" -l 255 -r 256 > "${extended_regions}"
     
     # Now use bedtools getfasta to extract sequences
-log "   -> Generating contextual sequence"
+    log "   -> Generating contextual sequence"
     local intermediate_seq
     intermediate_seq=$(mktemp)
-    bedtools getfasta -fi "${REFERENCE}" -bed "${extended_regions}" -bedOut > "${intermediate_seq}"
+    bedtools getfasta -tab -fi "${REFERENCE}" -bed "${extended_regions}" -bedOut > "${intermediate_seq}"
     
     log "   -> Create the output file"
     local header="chr\tstart\tend\tpos\tref\talt\tsequences"
-    echo -e "${header}" > "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
-    cat "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
+    echo -e "${header}" > "${OUTPUT_DIR}/${SAMPLE_NAME}_seq.tsv"
+    cat "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_seq.tsv"
 
     # Clean up temporary files
 }
