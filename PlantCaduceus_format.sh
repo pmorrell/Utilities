@@ -15,8 +15,8 @@ set -o pipefail
 
 module load bedtools2/2.31.0-gcc-8.2.0-7j35k74
 
-INPUT_DIR="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test/filtered_results"
-OUTPUT_DIR="/scratch.global/pmorrell/Inversions/PlantCaduceus"
+INPUT_DIR="/scratch.global/pmorrell/Barley_LLMs"
+OUTPUT_DIR="/scratch.global/pmorrell/Barley_LLMs"
 REFERENCE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta"
 REFERENCE_INDEX="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta.fai"
 
@@ -28,32 +28,33 @@ log() {
 }
 
 process_vcfs() {
-    log "   -> Read SNP information from VCF"
+    log "   -> Processing VCF file"
     local VCF_FILE="$1"
     local SAMPLE_NAME
     SAMPLE_NAME=$(basename "${VCF_FILE}" .vcf.gz)
     log "Processing VCF (chromosome): ${SAMPLE_NAME}"
 
-    local intermediate_bed
-    intermediate_bed=$(mktemp)
-    zcat "${VCF_FILE}" | grep -v '#' | awk -v OFS='\t' '{print $1, $2-255, $2+257}' > "${intermediate_bed}"
+    # First use bedtools slop directly on VCF to extend regions
+    log "  -> Extracting SNP positions from the VCF"
+    local SNP_positions=$(mktemp)
+    zgrep -v '#' "${VCF_FILE}" | awk -v OFS='\t' '{print $1, $2-1, $2, $2-1, $4, $5}' > "${SNP_positions}"
 
-    log "   -> Generating intervals"
-    local intermediate_bed2
-    intermediate_bed2=$(mktemp)
-    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -l 254 -r 257 > "${intermediate_bed2}"
-
-    log "   -> Generating contextual sequence"
+    log "   -> Extending regions to create 512bp windows with SNP at position 256"
+    local extended_regions=$(mktemp)
+    bedtools slop -i "${SNP_positions}" -g "${REFERENCE_INDEX}" -l 256 -r 255 > "${extended_regions}"
+    
+    # Now use bedtools getfasta to extract sequences
+log "   -> Generating contextual sequence"
     local intermediate_seq
     intermediate_seq=$(mktemp)
-    bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -bedOut > "${intermediate_seq}"
+    bedtools getfasta -fi "${REFERENCE}" -bed "${extended_regions}" -bedOut > "${intermediate_seq}"
     
     log "   -> Create the output file"
     local header="chr\tstart\tend\tpos\tref\talt\tsequences"
     echo -e "${header}" > "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
-    echo -e "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
+    cat "${intermediate_seq}" >> "${OUTPUT_DIR}/${SAMPLE_NAME}_input.txt"
 
-    rm "${intermediate_bed}" "${intermediate_bed2}" "${intermediate_seq}"
+    # Clean up temporary files
 }
 
 log "Looking for VCF files in ${INPUT_DIR}..."
@@ -62,3 +63,4 @@ find "${INPUT_DIR}" -name "*.vcf.gz" | while read -r VCF_FILE; do
 done
 
 log "All samples processed."
+
