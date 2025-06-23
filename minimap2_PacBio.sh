@@ -15,10 +15,15 @@ set -euo pipefail
 MINIMAP2=/users/6/pmorrell/Apps/HLi/minimap2/minimap2
 
 # User provided input arguments
-REF_FILE=/home/morrellp/pmorrell/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta
-OUT_PREFIX=WBDC207_PacBio
-OUT_DIR=/scratch.global/pmorrell/WBDC_resequencing/WBDC207/PacBio
-FASTQ_LIST=/scratch.global/pmorrell/WBDC_resequencing/WBDC207/PacBio/WBDC207_trim_fastq.txt  # Path to a file containing a list of FASTQ files
+REF_FILE=/home/morrellp/pmorrell/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_plastids.fasta
+SAMPLE=WBDC078
+OUT_PREFIX=${SAMPLE}_PacBio
+#IN_DIR=/scratch.global/pmorrell/WBDC_resequencing/${SAMPLE}
+OUT_DIR=/scratch.global/pmorrell/WBDC_resequencing/${SAMPLE}/PacBio
+# Path to a file containing a list of FASTQ files
+# cd ${IN_DIR}
+#find "$PWD" -type f -name "*.fastq.gz" >${SAMPLE}_fastq.txt
+FASTQ_LIST=/scratch.global/pmorrell/WBDC_resequencing/${SAMPLE}/${SAMPLE}_fastq.txt
 
 # Check if our dir exists, if not make it
 mkdir -p ${OUT_DIR}
@@ -27,6 +32,4 @@ mkdir -p ${OUT_DIR}
 cd ${OUT_DIR}
 
 # Align with minimap2 using a loop
-while read FASTQ_FILE; do
-    $MINIMAP2 -ax map-hifi -t 8 -I6g ${REF_FILE} ${FASTQ_FILE} >> ${OUT_DIR}/${OUT_PREFIX}.sam
-done < ${FASTQ_LIST}
+    $MINIMAP2 -ax map-hifi -t 8 -I6g ${REF_FILE} $(cat ${FASTQ_LIST}) > ${OUT_DIR}/${OUT_PREFIX}.sam
