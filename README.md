@@ -14,3 +14,5 @@ Some of the code is quite useful *as is* while other code requires additional in
 |---------------|:--------------------------------------------------------------:|----------------------------:|
 | Ab1tofastq.py |  Use BioPython to convert Sanger sequence files to FASTQ reads | Reuse of barley Sanger data |
 | Alchemy_Calls.sh |  Bash script to drive [Alchemy](https://alchemy.sourceforge.net) genotype calls  | Barley genotyping datasets |
+| FASTQ_dumper.sh | An SRA download script | Reuse of next generation sequence |
+
