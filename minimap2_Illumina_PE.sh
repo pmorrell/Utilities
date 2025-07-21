@@ -1,6 +1,7 @@
 #!/bin/bash -l
 #SBATCH --time=24:00:00
-#SBATCH --ntasks=9
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=9
 #SBATCH --mem=490g
 #SBATCH --tmp=490g
 #SBATCH --mail-type=ALL
@@ -14,8 +15,8 @@ set -o pipefail
 module load minimap2/2.26 
 
 # User provided input arguments
-FASTQ_01=/scratch.global/pmorrell/Inverions/WBDC355_10X_SNPS/WBDC355_R1_001_trim.fastq.gz
-FASTQ_02=/scratch.global/pmorrell/Inverions/WBDC355_10X_SNPS/WBDC355_R2_001_trim.fastq.gz
+FASTQ_01=/scratch.global/pmorrell/Inverions/WBDC355_10X_Genomics/WBDC355_R1_001_trim.fastq.gz
+FASTQ_02=/scratch.global/pmorrell/Inverions/WBDC355_10X_Genomics/WBDC355_R2_001_trim.fastq.gz
 REF_FILE=/home/morrellp/pmorrell/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta
 OUT_PREFIX=WBDC355_10X_SNPS
 OUT_DIR=/scratch.global/pmorrell/Inverions/WBDC355_10X_SNPS
