@@ -56,7 +56,7 @@ def parse_fasta_parallel(fasta_file):
     # Debug output to verify IDs
     sample_ids = list(sequences.keys())[:5]
     print(f"Sample sequence IDs: {sample_ids}")
-    
+
     return sequences
 
 def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illumina_probes.txt", flank_length=60):
@@ -66,16 +66,16 @@ def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illum
     if not variants:
         print("Error: No variants found in VCF file.")
         return
-    
+
     # Show sample variant formats
     print("Sample variants:")
     for v in variants[:3]:
         print(f"  Chrom: '{v['chrom']}', Pos: {v['pos']}")
-    
+
     # Build variant dictionary
     variant_dict = {f"{v['chrom']}_{v['pos']}": v for v in variants}
     print(f"Found {len(variant_dict)} variants.")
-    
+
     # Process FASTA sequences in parallel
     sequences = parse_fasta_parallel(fasta_file)
     print(f"Found {len(sequences)} sequences in FASTA file.")
@@ -90,7 +90,7 @@ def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illum
             # Debug: check what the sequence ID looks like
             if sequence_count == 0:
                 print(f"First sequence ID being processed: '{seq_id}'")
-                
+
             variant_key = seq_id
             if variant_key in variant_dict:
                 variant = variant_dict[variant_key]
@@ -121,7 +121,7 @@ def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illum
                         alternatives.append(f"c{chrom}_{pos}")
                     if not chrom.startswith('chr'):
                         alternatives.append(f"chr{chrom}_{pos}")
-                    
+
                     # Try each alternative
                     for alt_key in alternatives:
                         if alt_key in variant_dict:
@@ -131,13 +131,13 @@ def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illum
                             if len(seq) <= pos_index or pos_index < flank_length or len(seq) - pos_index <= flank_length:
                                 warnings.append(f"Warning: Sequence {seq_id} is too short for flanking extraction.")
                                 continue
-                            
+
                             upstream = seq[pos_index-flank_length:pos_index]
                             downstream = seq[pos_index+1:pos_index+flank_length+1]
-                            
+
                             illumina_string = f"{seq_id}\t{upstream}[{variant['ref']}/{variant['alt']}]{downstream}"
                             out.write(illumina_string + "\n")
-                            
+
                             sequence_count += 1
                             processed_variants.add(alt_key)
                             print(f"Fixed ID: {seq_id} → {alt_key}")

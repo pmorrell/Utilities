@@ -10,12 +10,12 @@ def create_utils_lookup(utils_file):
                 # Parse the line
                 coords, sequence = line.strip().split('\t')
                 chrom_range, seq = coords, sequence
-                
+
                 # Extract chromosome and position
                 chrom, pos_range = chrom_range.split(':')
                 start, end = map(int, pos_range.split('-'))
                 mid_pos = (start + end) // 2
-                
+
                 # Find the variant position and alleles
                 left_bracket = sequence.find('[')
                 right_bracket = sequence.find(']')
@@ -24,11 +24,11 @@ def create_utils_lookup(utils_file):
                     ref, alt = alleles.split('/')
                     key = f"{chrom}_{mid_pos}"
                     lookup[key] = (ref, alt)
-                
+
             except Exception as e:
                 print(f"Error on line {line_num}: {line.strip()}", file=sys.stderr)
                 print(f"Error details: {str(e)}", file=sys.stderr)
-                
+
     print(f"Loaded {len(lookup)} positions from utils file", file=sys.stderr)
     return lookup
 
@@ -42,16 +42,16 @@ def process_fasta(fasta_file, utils_lookup):
             if not header:
                 break
             seq = f.readline().strip()
-            
+
             # Process header to get middle position
             header = header[1:]  # Remove '>'
             chrom, range_part = header.split(':')
             start, end = map(int, range_part.split('-'))
             mid_pos = (start + end) // 2
-            
+
             # Create lookup key
             lookup_key = f"{chrom}_{mid_pos}"
-            
+
             # Get reference nucleotide from utils lookup
             n_pos = seq.find('N')
             if n_pos != -1:
@@ -61,11 +61,11 @@ def process_fasta(fasta_file, utils_lookup):
                     replaced += 1
                 else:
                     missing_pos[chrom] += 1
-            
+
             print(f">{chrom}_{mid_pos}")
             print(seq)
             processed += 1
-    
+
     print(f"\nProcessed {processed} sequences", file=sys.stderr)
     print(f"Successfully replaced {replaced} N's with reference nucleotides", file=sys.stderr)
     print("\nMissing positions by chromosome:", file=sys.stderr)
