@@ -9,7 +9,7 @@ import tarfile
 USAGE = """
 Usage:
     python tarchiver2.py directory_name
-    
+
 Creates a compressed tar archive (.tar.bz2) of the specified directory.
 """
 
@@ -23,18 +23,18 @@ def main():
     if len(sys.argv) < 2:
         print(USAGE)
         sys.exit(1)
-    
+
     try:
         directory_name = sys.argv[1]
-        
+
         # Verify directory exists
         if not os.path.isdir(directory_name):
             print(f"Error: '{directory_name}' is not a directory or doesn't exist")
             sys.exit(1)
-        
+
         output_file = f"{os.path.basename(directory_name)}.tar.bz2"
         make_tarfile(output_file, directory_name)
-        
+
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
