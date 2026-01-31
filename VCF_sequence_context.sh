@@ -19,6 +19,10 @@ INPUT_DIR="/scratch.global/pmorrell/Selective_Sweeps"
 OUTPUT_DIR="/scratch.global/pmorrell/Selective_Sweeps"
 REFERENCE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules.fasta.gz"
 REFERENCE_INDEX="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules.fasta.gz.fai"
+# Left flank: 250
+LEFT=250
+# Right flank: 250
+RIGHT=250
 mkdir -p "${OUTPUT_DIR}"
 
 log() {
@@ -40,7 +44,7 @@ process_vcfs() {
     log "   -> Generating intervals"
     local intermediate_bed2
     intermediate_bed2=$(mktemp)
-    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -l 61 -r 60 > "${intermediate_bed2}"
+    bedtools slop -i "${intermediate_bed}" -g "${REFERENCE_INDEX}" -l "${LEFT}" -r "${RIGHT}" > "${intermediate_bed2}"
 
     log "   -> Generating contextual sequence output"
     local temp_fasta
@@ -50,9 +54,9 @@ process_vcfs() {
     # Generate FASTA to temp file first
     bedtools getfasta -fi "${REFERENCE}" -bed "${intermediate_bed2}" -nameOnly -fo "${temp_fasta}"
     
-    # Process with sed to replace 61st position with N, then write directly to final output
-    log "   -> Converting SNP position (61st base) to N"
-    sed '/^>/!s/\(.\{60\}\)./\1N/' "${temp_fasta}" > "${final_output}"
+    # Process with sed to replace center base with N, then write directly to final output
+    log "   -> Converting SNP position ($((LEFT+1))st base) to N"
+    sed "/^>/!s/\(.\{${LEFT}\}\)./\1N/" "${temp_fasta}" > "${final_output}"
     
     # Clean up temporary files
     rm -f "${intermediate_bed}" "${intermediate_bed2}" "${temp_fasta}"
