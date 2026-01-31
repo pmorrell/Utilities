@@ -1,39 +1,45 @@
 
-#!/bin/bash
+#!/bin/bash -l
 
-# minimap2 script for mapping short genomic sequences with SNP
-# Usage: ./minimap2_mapping.sh <query.fasta> <reference.fasta> <output_prefix>
+#SBATCH --time=2:00:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16g
+#SBATCH --tmp=24g
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=pmorrell@umn.edu
+#SBATCH -o %j.minimap2.out
+#SBATCH -e %j.minimap2.err
+
+# minimap2 liftover script (adds SLURM/module setup; default preset = sr)
+# Usage: ./minimap2_liftover.sh <query.fasta> <reference.fasta> <output_prefix>
 
 set -euo pipefail
 
-# Check arguments
-if [ $# -lt 3 ]; then
-    echo "Usage: $0 <query.fasta> <reference.fasta> <output_prefix>"
-    echo ""
-    echo "Arguments:"
-    echo "  query.fasta       - Input sequence file (121 bp with SNP)"
-    echo "  reference.fasta   - Reference genome"
-    echo "  output_prefix     - Prefix for output files"
-    exit 1
-fi
 
-QUERY_FILE="$1"
-REF_FILE="$2"
-OUT_PREFIX="$3"
-OUT_DIR=$(dirname "$OUT_PREFIX")
+# Paths to tools (override if needed)
+MINIMAP2=/users/6/pmorrell/Apps/HLi/minimap2/minimap2
 
-# Create output directory if it doesn't exist
-mkdir -p "$OUT_DIR"
+# User-provided inputs (edit these for each run)
+REF_FILE=/home/morrellp/pmorrell/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_plastids.fasta
+# Optional pre-built minimap2 index (.mmi). If set and exists, it will be used instead of FASTA
+REF_IDX=/home/morrellp/pmorrell/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_plastids.mmi
 
-# minimap2 parameters for short sequences:
-# -x sr = short reads (good for ~100bp sequences)
-# -a = output SAM format
-# -o = output file
+SAMPLE=WBDC355
+OUT_PREFIX=${SAMPLE}_ONT
+# IN_DIR=/scratch.global/pmorrell/WBDC_resequencing/${SAMPLE}
+OUT_DIR=/scratch.global/pmorrell/WBDC_resequencing/${SAMPLE}/ONT
+# Path to a file containing a list of FASTQ files (one per line)
+# Default minimap2 settings: keep short-read preset (`sr`) by default,
+# but allow override via MINIMAP2_PRESET env var (or export before running).
+MINIMAP2_PRESET=${MINIMAP2_PRESET:-sr}
+# Threads: prefer SLURM_CPUS_PER_TASK if present, otherwise THREADS env or 8
+THREADS=${SLURM_CPUS_PER_TASK:-${THREADS:-8}}
 
-echo "Mapping ${QUERY_FILE} to ${REF_FILE}..."
+echo "Mapping ${QUERY_FILE} to ${REF_FILE} using preset=${MINIMAP2_PRESET}, threads=${THREADS}..."
 echo "Output: ${OUT_PREFIX}.sam"
 
-# Run minimap2
-minimap2 -x sr -a -o "${OUT_PREFIX}.sam" "$REF_FILE" "$QUERY_FILE"
+# Run minimap2 and write SAM to output prefix
+minimap2 -x "${MINIMAP2_PRESET}" -t "${THREADS}" -a "${REF_FILE}" "${QUERY_FILE}" > "${OUT_PREFIX}.sam"
 
 echo "Done!"
