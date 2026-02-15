@@ -9,14 +9,47 @@
 #SBATCH -e %j.err
 
 # Original script Peter L. Morrell - St. Paul, MN
+# Modified to accept command-line arguments
 
 set -e
 set -o pipefail
 
+# Usage function
+usage() {
+    echo "Usage: $0 <FILE1> <FILE2> <OUTPUT_DIR>"
+    echo ""
+    echo "Arguments:"
+    echo "  FILE1       Path to first VCF/BCF file (compressed or uncompressed)"
+    echo "  FILE2       Path to second VCF/BCF file (compressed or uncompressed)"
+    echo "  OUTPUT_DIR  Directory for output files"
+    echo ""
+    echo "Supported formats: .vcf, .vcf.gz, .bcf"
+    echo ""
+    echo "Example:"
+    echo "  $0 file1.vcf.gz file2.bcf output_dir"
+    exit 1
+}
 
-VCF01="/scratch.global/pmorrell/Inversions/WBDC355_10X_SNPS/test/WBDC355_10X_chr1H.vcf.gz"
-VCF02="/scratch.global/pmorrell/Inversions/BOPA_WBDC355.vcf.gz"
-OUTPUT_DIR="/scratch.global/pmorrell/Inversions/BOPA_intersect"
+# Check if correct number of arguments provided
+if [ "$#" -ne 3 ]; then
+    echo "Error: Incorrect number of arguments"
+    usage
+fi
+
+FILE01="${1}"
+FILE02="${2}"
+OUTPUT_DIR="${3}"
+
+# Validate input files exist
+if [ ! -f "${FILE01}" ]; then
+    echo "Error: File '${FILE01}' not found"
+    exit 1
+fi
+
+if [ ! -f "${FILE02}" ]; then
+    echo "Error: File '${FILE02}' not found"
+    exit 1
+fi
 
 # Load required modules
 module load bcftools_ML_2/1.20
@@ -25,14 +58,18 @@ mkdir -p "${OUTPUT_DIR}"
 
 log() {
     local msg="$1"
-    echo "$(date +'%Y-%m-%d %H:%M:%S') - ${msg}"
+    echo "$(date +'%%Y-%%m-%%d %%H:%%M:%%S') - ${msg}"
 }
 
+log "Processing files:"
+log "  FILE1: ${FILE01}"
+log "  FILE2: ${FILE02}"
+log "  Output: ${OUTPUT_DIR}"
 
-log "Create an index for the VCFs"
-bcftools index -f "${VCF01}"
-bcftools index -f "${VCF02}"
+log "Creating indexes for VCF/BCF files"
+bcftools index -f "${FILE01}"
+bcftools index -f "${FILE02}"
 
-log "Starting to intersect VCF files"
-bcftools isec -p "${OUTPUT_DIR}" "${VCF01}" "${VCF02}"
-log "Finished intersecting VCF files"
+log "Starting to intersect VCF/BCF files"
+bcftools isec -p "${OUTPUT_DIR}" "${FILE01}" "${FILE02}"
+log "Finished intersecting VCF/BCF files"
