@@ -9,14 +9,35 @@
 #SBATCH -o %j.out
 #SBATCH -e %j.err
 
+set -e
+set -u
+set -o pipefail
+
+# Check for required arguments
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input_bcf> <output_directory>"
+    echo "  input_bcf: Path to indexed .bcf file"
+    echo "  output_directory: Directory where output will be written"
+    exit 1
+fi
+
+# Parse arguments
+BCF="$1"
+OUTDIR="$2"
+
+# Validate input file exists
+if [ ! -f "$BCF" ]; then
+    echo "Error: Input BCF file does not exist: $BCF"
+    exit 1
+fi
+
+# Create output directory if it doesn't exist
+mkdir -p "$OUTDIR"
+
 BCFTOOLS=/users/6/pmorrell/software/modulesfiles/bcftools/bcftools
 
-# Add path to bgzipped and indexed .vcf file 
-VCF="/scratch.global/large/barley/barley281_variant_call/repadapt_mapq20_vcf/raw_vcf_by_chr/repadapt_snp_only_mapq20.vcf.gz"
-OUTDIR="/scratch.global/pmorrell/WBDC_resequencing/"
+SAMPLE_NAME=$(basename "$BCF" .bcf)
 
-SAMPLE_NAME=$(basename "$VCF" .vcf.gz)
+"$BCFTOOLS" +fill-tags "$BCF" --threads 4 -Ob -o ${OUTDIR}/${SAMPLE_NAME}_tags.bcf --
 
-"$BCFTOOLS" +fill-tags "$VCF" --threads 4 -Oz -o ${OUTDIR}/${SAMPLE_NAME}.vcf.gz --
-
-#bcftools index --csi ${OUTDIR}/${SAMPLE_NAME}.vcf.gz
+bcftools index ${OUTDIR}/${SAMPLE_NAME}_tags.bcf
