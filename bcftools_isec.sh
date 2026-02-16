@@ -52,7 +52,7 @@ if [ ! -f "${FILE02}" ]; then
 fi
 
 # Load required modules
-module load bcftools_ML_2/1.20
+module load bcftools/1.21
 
 mkdir -p "${OUTPUT_DIR}"
 
