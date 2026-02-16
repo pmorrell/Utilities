@@ -1,110 +1,93 @@
 #!/bin/bash -l
-#SBATCH –time=10:00:00
-#SBATCH –ntasks=1
-#SBATCH –cpus-per-task=10
-#SBATCH –mem=200g
-#SBATCH –tmp=200g
-#SBATCH –mail-type=ALL
-#SBATCH –mail-user=your_email@umn.edu
-#SBATCH -o %A_%a.out
-#SBATCH -e %A_%a.err
+#SBATCH --time=4:00:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=200g
+#SBATCH --tmp=200g
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=your_email@umn.edu
+#SBATCH -o %A.out
+#SBATCH -e %A.err
 
 set -euo pipefail
 
+# --- Setup & Logging ---
 log() {
-local msg=”$1”
-echo “$(date +’%Y-%m-%d %H:%M:%S’) - ${msg}”
+  echo "$(date +'%Y-%m-%d %H:%M:%S') - $1"
 }
 
-# This script summarizes the variation in VCFs from resequencing
-# It calculates statistics on missing variants for each VCF and produces bcftools
-# stats and associated plots
-# The script assumes that the user has run `bcftools +fill-tags` to generate the F_MISSING tag
-# Configure paths (can be overridden by environment variables)
-
-WORK_DIR=”${WORK_DIR:-/scratch.global/pmorrell/WBDC_resequencing}”
-OUTPUT_DIR=”${OUTPUT_DIR:-${WORK_DIR}/variation_summary}”
-
-module load bcftools_ML_2/1.20
-module load datamash_ML/1.3
-module load python3/3.8.3_anaconda2020.07_mamba
-module load texlive/20131202
-
-
-# Check if required modules are available
-
-if ! module list 2>&1 | grep -q bcftools; then
-log “Error: bcftools module not loaded properly”
-exit 1
-fi
-
-if ! module list 2>&1 | grep -q datamash; then
-log “Error: datamash module not loaded properly”
-exit 1
-fi
-
-cd “$WORK_DIR”
-mkdir -p “$OUTPUT_DIR”
-
-process_vcfs() {
-log “   -> Processing VCF file”
-local VCF_FILE=”$1”
-local SAMPLE_NAME
-SAMPLE_NAME=$(basename “${VCF_FILE}” .vcf.gz)
-log “Processing VCF (chromosome): ${SAMPLE_NAME}”
-
-```
-# Create sample-specific output directory
-mkdir -p "${OUTPUT_DIR}/${SAMPLE_NAME}"
-
-# Extract the chromosome name from the VCF file name
-# Calculate missing - GATK indels
-log "   -> Extracting missingness for each variant"
-bcftools query -f '%F_MISSING\n' "$VCF_FILE" | \
-    datamash --round 3 mean 1 sstdev 1 median 1 min 1 max 1 count 1 > "${OUTPUT_DIR}/${SAMPLE_NAME}/missing_summary.txt"
-
-# Generate summary statistics for the VCF file
-log "   -> Generating summary statistics for ${SAMPLE_NAME}"
-bcftools stats "$VCF_FILE" > "${OUTPUT_DIR}/${SAMPLE_NAME}/${SAMPLE_NAME}_stats.txt"
-
-# Option 1: Use bcftools plot-vcfstats (requires plot-vcfstats.py and dependencies)
-log "   -> Generating plots with plot-vcfstats"
-if command -v plot-vcfstats &> /dev/null; then
-    plot-vcfstats -p "${OUTPUT_DIR}/${SAMPLE_NAME}/plots_" "${OUTPUT_DIR}/${SAMPLE_NAME}/${SAMPLE_NAME}_stats.txt"
-else
-    log "   -> plot-vcfstats not found, skipping automatic plotting"
-fi
-```
-
-}
-
-# Main execution logic
-
-main() {
-log “Starting VCF processing pipeline”
-
-```
-# Check if VCF files argument is provided
-if [ $# -eq 0 ]; then
-    log "Usage: $0 <vcf_file1> [vcf_file2] ..."
-    log "Or set VCF_FILES environment variable with space-separated file paths"
+# 1. Argument Validation
+if [ $# -lt 2 ]; then
+    log "Error: Missing arguments."
+    echo "Usage: sbatch $0 <input_file> <work_dir>"
+    echo "Example: sbatch $0 my_data.bcf /scratch.global/pmorrell/Cowpea/Project1"
     exit 1
 fi
 
-# Process each VCF file
-for VCF_FILE in "$@"; do
-    if [ -f "$VCF_FILE" ]; then
-        process_vcfs "$VCF_FILE"
-    else
-        log "Warning: VCF file not found: $VCF_FILE"
-    fi
-done
+INPUT_VCF="$1"
+WORK_DIR="$2"
+OUTPUT_DIR="${WORK_DIR}/variation_summary"
+DATAMASH=/projects/standard/morrellp/shared/Software/datamash-1.9/datamash
 
-log "VCF processing pipeline completed"
-```
+# 2. Environment Setup
+module load bcftools/1.21
+module load python3/3.8.3_anaconda2020.07_mamba
+module load texlive/20131202
 
-}
+# Move to the working directory
+cd "$WORK_DIR" || { log "Error: Cannot enter $WORK_DIR"; exit 1; }
 
-# Execute main function with all command line arguments
+# 3. Verify Input File exists
+if [ ! -f "$INPUT_VCF" ]; then
+    log "Error: Input file '$INPUT_VCF' not found in $WORK_DIR"
+    exit 1
+fi
 
-main “$@”
+# 4. Extract Sample Name (strips .vcf.gz, .vcf, or .bcf)
+SAMPLE_NAME=$(basename "${INPUT_VCF}")
+SAMPLE_NAME="${SAMPLE_NAME%.gz}"
+SAMPLE_NAME="${SAMPLE_NAME%.vcf}"
+SAMPLE_NAME="${SAMPLE_NAME%.bcf}"
+
+# Create specific output folder for this file
+mkdir -p "${OUTPUT_DIR}/${SAMPLE_NAME}"
+
+# --- Processing ---
+log "Starting variation summary for: ${SAMPLE_NAME}"
+
+# Missingness Stats
+log " -> Calculating missingness with bcftools & datamash"
+# Note: Ensure +fill-tags was run previously to provide F_MISSING
+summary_line=$(bcftools query -f '%F_MISSING\n' "$INPUT_VCF" | \
+    $DATAMASH --round 3 mean 1 sstdev 1 median 1 min 1 max 1 count 1)
+
+read mean sstdev median min max count <<< "$summary_line"
+
+{
+    echo "Summary for: $SAMPLE_NAME"
+    echo "---------------------------"
+    echo "Mean Missingness:   $mean"
+    echo "Std. Deviation:     $sstdev"
+    echo "Median:             $median"
+    echo "Min:                $min"
+    echo "Max:                $max"
+    echo "Total Variants:     $count"
+    echo ""
+    echo "Raw Datamash: $summary_line"
+} > "${OUTPUT_DIR}/${SAMPLE_NAME}/missing_summary.txt"
+
+# BCFtools Stats
+log " -> Generating full bcftools stats"
+bcftools stats "$INPUT_VCF" > "${OUTPUT_DIR}/${SAMPLE_NAME}/${SAMPLE_NAME}_stats.txt"
+
+# Plotting (Visualizing Ts/Tv, Qualities, and Indel Distribution)
+# 
+if command -v plot-vcfstats &> /dev/null; then
+    log " -> Creating plots in ${OUTPUT_DIR}/${SAMPLE_NAME}/plots"
+    plot-vcfstats -p "${OUTPUT_DIR}/${SAMPLE_NAME}/plots" \
+                  "${OUTPUT_DIR}/${SAMPLE_NAME}/${SAMPLE_NAME}_stats.txt"
+else
+    log " -> plot-vcfstats not found in environment, skipping PDF generation"
+fi
+
+log "Pipeline completed successfully for ${SAMPLE_NAME}"
