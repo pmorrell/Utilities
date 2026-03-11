@@ -58,8 +58,9 @@ mkdir -p "${OUTPUT_DIR}"
 
 log() {
     local msg="$1"
-    echo "$(date +'%%Y-%%m-%%d %%H:%%M:%%S') - ${msg}"
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - ${msg}"
 }
+
 
 log "Processing files:"
 log "  FILE1: ${FILE01}"
