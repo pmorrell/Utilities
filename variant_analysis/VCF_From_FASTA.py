@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #   Creates a really crude VCF file given a FASTA alignment
 #   Assumes that the reference sequence is the first sequence in the alignment
@@ -20,7 +20,7 @@ reference = sequences[0]
 string_name = reference.name
 chrom_name = re.split(':|-', string_name)[0]
 start_pos = int(re.split(':|-', string_name)[1]) + 1 # Add one to convert from 0-based BED to 1-based VCF
-print start_pos
+print(start_pos)
 
 #   The VCF header
 vcf_header="""##fileformat=VCFv4.1
@@ -32,7 +32,7 @@ vcf_header="""##fileformat=VCFv4.1
 #   Convert to a list, so we can save column information, too
 raw_seqs = [list(x.seq) for x in sequences]
 #   Transpose the matrix, to iterate over columns instead of rows
-columns = zip(*raw_seqs)
+columns = list(zip(*raw_seqs))
 
 #   Now, we actually find indels and SNP positions
 indel_positions = []
@@ -60,9 +60,9 @@ for index, base in enumerate(columns):
 #   group by the value of (pos - index)
 #   if they are the same, then the numbers are consecutive
 indels = []
-for key, group in itertools.groupby(enumerate(indel_positions), lambda (i,x):i-x):
+for key, group in itertools.groupby(enumerate(indel_positions), lambda ix: ix[0] - ix[1]):
     #   save the second value, which is the actual group
-    indels.append(map(operator.itemgetter(1), group))
+    indels.append(list(map(operator.itemgetter(1), group)))
 
 #   Now that we have a list of actual indels, we iterate over that, and save
 #   the states that aren't gaps. We also save the reference state

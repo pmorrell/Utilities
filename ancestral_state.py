@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 """
-Pull ancestral state of variants from a list and create input for plotting the \
-unfolded SFS and identifying ancestral state for each genotype at each position.
-This script is lightly rewritten from a version from Tom Kono written for \
-barley ancestral state inference: \
+Pull ancestral state of variants from a list and create input for plotting
+the unfolded SFS and identifying ancestral state for each genotype at each
+position.
+
+This script is lightly rewritten from a version from Tom Kono written for
+barley ancestral state inference:
 https://github.com/MorrellLAB/Deleterious_GP/blob/master/Analysis_Scripts/Data_Handling/H_murinum_Ancestral.py
 
 """
@@ -13,27 +15,29 @@ import sys
 import gzip
 
 
-#    Run through the ancestral state files and record the chromosome positions
-#    as a key, and ancestral state as a value
 def store_anc(a):
-    """Read through the list of position and ancestral states and store the ancestral state. This will be in a
-    dictionary keyed on chr:pos."""
+    """Read through list of position and ancestral states and store.
+
+    This will be in a dictionary keyed on chr:pos.
+    """
     anc = {}
     with gzip.open(a, 'rt') as f:
         for line in f:
             if line.startswith('chr'):
                 continue
-            else:
-                tmp = line.strip().split('\t')
-                k = tmp[0] + ':' + tmp[1]
-                v = tmp[2]
-                anc[k] = v
+            tmp = line.strip().split('\t')
+            k = tmp[0] + ':' + tmp[1]
+            v = tmp[2]
+            anc[k] = v
     return anc
 
+
 def polarize(ref, alt, anc, samples):
-    """Return a list of the polarized genotypes in the samples. We will use
-    A for ancestral allele, D for derived allele, and N for unknown. The
-    genotypes will be diploid."""
+    """Return a list of the polarized genotypes in the samples.
+
+    We will use A for ancestral allele, D for derived allele, and N for
+    unknown. The genotypes will be diploid.
+    """
     pol = []
     # First, if ancestral is N, then we return N for all samples
     if anc == 'N':
@@ -41,29 +45,27 @@ def polarize(ref, alt, anc, samples):
         for s in samples:
             pol.append('NN')
         return (pol, der)
+    if anc == ref:
+        der = alt
+        a = '0'
+        d = '1'
     else:
-        if anc == ref:
-            der = alt
-            a = '0'
-            d = '1'
+        der = ref
+        a = '1'
+        d = '0'
+    for s in samples:
+        gt = s.split(':')[0]
+        if gt in ('.', './.'):
+            pol.append('NN')
+        elif gt == a + '/' + a:
+            pol.append('AA')
+        elif gt in (a + '/' + d, d + '/' + a):
+            pol.append('AD')
+        elif gt == d + '/' + d:
+            pol.append('DD')
         else:
-            der = ref
-            a = '1'
-            d = '0'
-        for s in samples:
-            gt = s.split(':')[0]
-            if gt in ('.', './.'):
-                pol.append('NN')
-            elif gt == a + '/' + a:
-                pol.append('AA')
-            elif gt in (a + '/' + d, d + '/' + a):
-                pol.append('AD')
-            elif gt == d + '/' + d:
-                pol.append('DD')
-            else:
-                pol.append('NN')
-        return (pol, der)
-
+            pol.append('NN')
+    return (pol, der)
 
 
 def main(anc, snps_vcf):
@@ -75,37 +77,47 @@ def main(anc, snps_vcf):
         for line in f:
             if line.startswith('##'):
                 continue
-            elif line.startswith('#CHROM'):
+            if line.startswith('#CHROM'):
                 samples = line.strip().split('\t')[9:]
                 # Print the header here
-                print('\t'.join(['Chromosome', 'Pos', 'SNPID', 'Ancestral', 'Derived', 'Reference'] + samples))
+                header_cols = (
+                    ['Chromosome', 'Pos', 'SNPID', 'Ancestral',
+                     'Derived', 'Reference'] + samples
+                )
+                print('\t'.join(header_cols))
+                continue
+            tmp = line.strip().split()
+            key = tmp[0] + ':' + tmp[1]
+            snpid = tmp[0] + '_' + tmp[1]
+            ref = tmp[3]
+            alt = tmp[4]
+            samp = tmp[9:]
+            ancestral = astates.get(key, 'N')
+            if ancestral == 'N':
+                morex = 'N'
+            elif ancestral == ref:
+                morex = 'A'
             else:
-                tmp = line.strip().split()
-                key = tmp[0] + ':' + tmp[1]
-                snpid = tmp[0] + '_' + tmp[1]
-                ref = tmp[3]
-                alt = tmp[4]
-                samp = tmp[9:]
-                ancestral = astates.get(key, 'N')
-                if ancestral == 'N':
-                    morex = 'N'
-                elif ancestral == ref:
-                    morex = 'A'
-                else:
-                    morex = 'D'
-                genos, derived = polarize(ref, alt, ancestral, samp)
-                # Print out the chrom, pos, ancestral, derived, morex state, and
-                # the polarized letters for the samples
-                print('\t'.join([tmp[0], tmp[1], snpid, ancestral, derived, morex] + genos))
-    return
+                morex = 'D'
+            genos, derived = polarize(ref, alt, ancestral, samp)
+            # Print chrom, pos, ancestral, derived, morex state, and
+            # polarized letters for samples
+            output_cols = (
+                [tmp[0], tmp[1], snpid, ancestral, derived, morex]
+                + genos
+            )
+            print('\t'.join(output_cols))
 
 
 if len(sys.argv) != 3:
-    print("""Print out the ancestral/derived alleles for each SNP, and which samples have
-the derived or ancestral alleles at each SNP. Both files must be anchored on
-the pseudomolecule assembly. Takes two arguments:
+    print(
+        """Print out the ancestral/derived alleles for each SNP, and
+which samples have the derived or ancestral alleles at each SNP. Both
+files must be anchored on the pseudomolecule assembly. Takes two
+arguments:
     1) Ancestral state list (gzipped)
-    2) Non-ancestral VCF (gzipped)""")
+    2) Non-ancestral VCF (gzipped)"""
+    )
     sys.exit(1)
 else:
     main(sys.argv[1], sys.argv[2])
