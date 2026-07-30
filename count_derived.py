@@ -57,7 +57,6 @@ def check_file_exists(fp):
     if os.path.exists(fp):
         # Remove file to start from clean slate
         os.remove(fp)
-    return
 
 
 def do_freq_counts(f, out_dir):
@@ -94,7 +93,6 @@ def do_freq_counts(f, out_dir):
         for key in fixation.keys():
             output_geno = '\t'.join(fixation[key])
             f.write('\t'.join([key, output_geno]) + '\n')
-    return
 
 
 def main(anc, out_dir):
@@ -109,8 +107,8 @@ def main(anc, out_dir):
         os.makedirs(out_dir_fp)
     # Check if output file already exists, since we are appending we want
     #   to make sure we start from a clean file in case the file already exists
-    check_file_exists(out_dir + "/derived_freq.txt")
-    check_file_exists(out_dir + "/fixation_list.txt")
+    check_file_exists(out_dir_fp + "/derived_freq.txt")
+    check_file_exists(out_dir_fp + "/fixation_list.txt")
     # Then iterate through the derived VCF and print out the relevant fields
     if "gz" in anc:
         with gzip.open(anc, 'rt') as f:
@@ -118,7 +116,6 @@ def main(anc, out_dir):
     else:
         with open(anc, 'rt') as f:
             do_freq_counts(f, out_dir_fp)
-    return
 
 
 if len(sys.argv) <= 2:
