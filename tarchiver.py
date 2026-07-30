@@ -11,6 +11,7 @@ Exit codes:
 """
 
 import argparse
+import math
 import os
 import re
 import shutil
@@ -49,6 +50,17 @@ def parse_args() -> argparse.Namespace:
         "--verify-only",
         action="store_true",
         help="Verify an existing archive path supplied as --name or directory",
+    )
+    parser.add_argument(
+        "--max-runtime-minutes",
+        type=float,
+        default=15.0,
+        help="Stop before running if the estimated runtime exceeds this limit",
+    )
+    parser.add_argument(
+        "--no-runtime-guard",
+        action="store_true",
+        help="Print the estimate but do not stop when it exceeds the limit",
     )
     return parser.parse_args()
 
@@ -94,6 +106,57 @@ def supported_tar_flags() -> List[str]:
         flags.append("--ignore-failed-read")
 
     return flags
+
+
+def estimate_input_stats(source_dir: str) -> Tuple[int, int]:
+    """Return (total_bytes, file_count) for a source tree."""
+    total_bytes = 0
+    file_count = 0
+
+    for root, _, files in os.walk(source_dir):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            try:
+                total_bytes += os.path.getsize(file_path)
+                file_count += 1
+            except OSError:
+                continue
+
+    return total_bytes, file_count
+
+
+def estimate_runtime_minutes(total_bytes: int, file_count: int, level: int) -> float:
+    """Estimate archive runtime from tree size and compression level."""
+    throughput_by_level = {
+        1: 220.0,
+        3: 180.0,
+        5: 130.0,
+        7: 100.0,
+        10: 70.0,
+        13: 50.0,
+        15: 35.0,
+        19: 20.0,
+    }
+
+    levels = sorted(throughput_by_level)
+    if level in throughput_by_level:
+        throughput_mb_s = throughput_by_level[level]
+    elif level < levels[0]:
+        throughput_mb_s = throughput_by_level[levels[0]]
+    elif level > levels[-1]:
+        throughput_mb_s = throughput_by_level[levels[-1]]
+    else:
+        lower = max(value for value in levels if value < level)
+        upper = min(value for value in levels if value > level)
+        fraction = (level - lower) / (upper - lower)
+        throughput_mb_s = throughput_by_level[lower] + fraction * (
+            throughput_by_level[upper] - throughput_by_level[lower]
+        )
+
+    size_mb = total_bytes / (1024.0 * 1024.0)
+    tar_overhead_seconds = file_count * 0.002
+    runtime_seconds = (size_mb / max(throughput_mb_s, 1.0)) + tar_overhead_seconds
+    return runtime_seconds / 60.0
 
 
 def build_tar_command(
@@ -277,6 +340,21 @@ def main() -> int:
     tar_flags = supported_tar_flags()
     if tar_flags:
         print(f"Tar metadata/warning flags enabled: {' '.join(tar_flags)}")
+
+    total_bytes, file_count = estimate_input_stats(source_dir)
+    estimated_minutes = estimate_runtime_minutes(total_bytes, file_count, args.level)
+    size_gib = total_bytes / (1024.0 ** 3)
+    print(f"Input size: {size_gib:.2f} GiB across {file_count} files")
+    print(f"Estimated runtime: {estimated_minutes:.1f} minutes")
+    if estimated_minutes > args.max_runtime_minutes:
+        message = (
+            f"Estimated runtime exceeds {args.max_runtime_minutes:.1f} minutes, "
+            "which risks HPC job termination"
+        )
+        if not args.no_runtime_guard:
+            print(f"Error: {message}")
+            return 2
+        print(f"Warning: {message}")
 
     print("Compression: zstd threaded")
     print(f"zstd level: {args.level}")
