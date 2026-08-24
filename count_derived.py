@@ -14,14 +14,14 @@ Where:
 2) [out_dir] is the full filepath to the output directory to store our output files
 """
 #    A full test data set
-#Chromosome      Pos     SNPID   Ancestral       Derived Reference       1046    1049    1050    1051    1053
-#Chr01  1	Chr01_1	A       G       D       DD      DD      DD      DD
-#Chr01  2	Chr01_2	A       G       D       DD      DD      DD      AA
-#Chr01  3	Chr01_3	A       G       D       DD      DD      AA      AA
-#Chr01  4	Chr01_4	A       G       D       AD      NN      NN      NN
-#Chr01  5	Chr01_5	A       G       D       DD      AA      AA      AA
-#Chr01	6	Chr01_6	A       G       D       AD      AA      AA      AA
-#Chr01	7	Chr01_7	A       C       A       NN      NN      NN      NN
+# Chromosome      Pos     SNPID   Ancestral       Derived Reference       1046    1049    1050    1051    1053
+# Chr01  1	Chr01_1	A       G       D       DD      DD      DD      DD
+# Chr01  2	Chr01_2	A       G       D       DD      DD      DD      AA
+# Chr01  3	Chr01_3	A       G       D       DD      DD      AA      AA
+# Chr01  4	Chr01_4	A       G       D       AD      NN      NN      NN
+# Chr01  5	Chr01_5	A       G       D       DD      AA      AA      AA
+# Chr01	6	Chr01_6	A       G       D       AD      AA      AA      AA
+# Chr01	7	Chr01_7	A       C       A       NN      NN      NN      NN
 
 #   Peter L. Morrell - Falcon Heights, MN - 22 July 2021
 #   Modified by Chaochih Liu - 10 August 2021
@@ -32,14 +32,13 @@ import gzip
 
 
 def allele_freq(genos):
-    """Count frequency of the derived variant.
-    """
+    """Count frequency of the derived variant."""
     allele_list = []
     # Reformat genotypes into alleles, one allele per list element
     # This makes for easier math
     for elem in genos:
         # Don't include missing 'N' alleles
-        if 'N' not in elem:
+        if "N" not in elem:
             for char in elem:
                 allele_list.append(char)
 
@@ -47,7 +46,7 @@ def allele_freq(genos):
     #   Outputs counts in the format: {'A': 1, 'D': 3}
     #       where the key is the allele, and the value is the count
     counts = {x: allele_list.count(x) for x in allele_list}
-    der_count = counts['D']
+    der_count = counts["D"]
     # Calcualte the frequency
     freq = der_count / sample_size
     return freq
@@ -65,16 +64,16 @@ def do_freq_counts(f, out_dir):
     fixation = {}
     der_dict = {}
     for line in f:
-        if line.startswith('##'):
+        if line.startswith("##"):
             continue
-        elif line.startswith('Chromosome'):
+        elif line.startswith("Chromosome"):
             continue
         else:
             tmp = line.strip().split()
             snpid = tmp[2]
             geno = tmp[6:]
             # Only work with lines with at least one derived variant!
-            if ('AD' in geno) or ('DD' in geno):
+            if ("AD" in geno) or ("DD" in geno):
                 # Call the frequency calculation function above.
                 frequency = allele_freq(geno)
                 der_dict[snpid] = [snpid, str(round(frequency, 4))]
@@ -84,21 +83,21 @@ def do_freq_counts(f, out_dir):
     # Minimize the number of times output file is opened
     # Save derived frequency
     der_fp = out_dir + "/derived_freq.txt"
-    with open(der_fp, 'a+') as f:
+    with open(der_fp, "a+") as f:
         for key in der_dict.keys():
-            f.write('\t'.join(der_dict[key]) + '\n')
+            f.write("\t".join(der_dict[key]) + "\n")
     # Save SNPs close to fixation
     fix_fp = out_dir + "/fixation_list.txt"
-    with open(fix_fp, 'a+') as f:
+    with open(fix_fp, "a+") as f:
         for key in fixation.keys():
-            output_geno = '\t'.join(fixation[key])
-            f.write('\t'.join([key, output_geno]) + '\n')
+            output_geno = "\t".join(fixation[key])
+            f.write("\t".join([key, output_geno]) + "\n")
 
 
 def main(anc, out_dir):
     """Main function."""
     # Check if out_dir exists, if not make it
-    out_dir_fp = os.path.expanduser(out_dir.rstrip('/'))
+    out_dir_fp = os.path.expanduser(out_dir.rstrip("/"))
     if os.path.exists(out_dir_fp):
         print("Output directory exists, proceeding...")
     else:
@@ -111,10 +110,10 @@ def main(anc, out_dir):
     check_file_exists(out_dir_fp + "/fixation_list.txt")
     # Then iterate through the derived VCF and print out the relevant fields
     if "gz" in anc:
-        with gzip.open(anc, 'rt') as f:
+        with gzip.open(anc, "rt") as f:
             do_freq_counts(f, out_dir_fp)
     else:
-        with open(anc, 'rt') as f:
+        with open(anc, "rt") as f:
             do_freq_counts(f, out_dir_fp)
 
 

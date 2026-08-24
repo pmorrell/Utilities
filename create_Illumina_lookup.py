@@ -17,85 +17,98 @@ import gzip
 
 def is_gzipped(filepath):
     """Check if a file is gzipped by looking at its first bytes"""
-    with open(filepath, 'rb') as f:
-        return f.read(2) == b'\x1f\x8b'
+    with open(filepath, "rb") as f:
+        return f.read(2) == b"\x1f\x8b"
 
 
 def extract_variants_from_vcf(vcf_file):
     """Extract all variants from VCF file"""
     variants = []
-    
+
     # Check if file is gzipped
-    gzipped = vcf_file.endswith('.gz') or vcf_file.endswith('.bgz') or is_gzipped(vcf_file)
-    
+    gzipped = (
+        vcf_file.endswith(".gz") or vcf_file.endswith(".bgz") or is_gzipped(vcf_file)
+    )
+
     # Open file with appropriate method
     opener = gzip.open if gzipped else open
-    mode = 'rt' if gzipped else 'r'
-    
+    mode = "rt" if gzipped else "r"
+
     with opener(vcf_file, mode) as vcf:
         for line in vcf:
-            if line.startswith('#'):
+            if line.startswith("#"):
                 continue
-            
-            parts = line.strip().split('\t')
+
+            parts = line.strip().split("\t")
             if len(parts) >= 5:
-                variants.append({
-                    'chrom': parts[0],
-                    'pos': parts[1],
-                    'id': parts[2] if parts[2] != '.' else f"{parts[0]}_{parts[1]}",
-                    'ref': parts[3],
-                    'alt': parts[4].split(',')[0]  # Just take first alt allele for simplicity
-                })
-    
+                variants.append(
+                    {
+                        "chrom": parts[0],
+                        "pos": parts[1],
+                        "id": parts[2] if parts[2] != "." else f"{parts[0]}_{parts[1]}",
+                        "ref": parts[3],
+                        "alt": parts[4].split(",")[
+                            0
+                        ],  # Just take first alt allele for simplicity
+                    }
+                )
+
     return variants
+
 
 def parse_fasta(fasta_file):
     """Simple FASTA parser that returns a dictionary of {sequence_id: sequence}"""
     sequences = {}
     current_id = None
     current_seq = []
-    
+
     # Check if FASTA is gzipped
-    gzipped = fasta_file.endswith('.gz') or is_gzipped(fasta_file)
+    gzipped = fasta_file.endswith(".gz") or is_gzipped(fasta_file)
     opener = gzip.open if gzipped else open
-    mode = 'rt' if gzipped else 'r'
-    
+    mode = "rt" if gzipped else "r"
+
     with opener(fasta_file, mode) as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-                
-            if line.startswith('>'):
+
+            if line.startswith(">"):
                 # Save the previous sequence if there was one
                 if current_id:
-                    sequences[current_id] = ''.join(current_seq)
-                
+                    sequences[current_id] = "".join(current_seq)
+
                 # Start a new sequence
                 current_id = line[1:].split()[0]  # Extract ID
                 current_seq = []
             else:
                 current_seq.append(line)
-    
+
     # Save the last sequence
     if current_id:
-        sequences[current_id] = ''.join(current_seq)
-        
+        sequences[current_id] = "".join(current_seq)
+
     return sequences
 
 
-def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illumina_probes.txt", flank_length=60):
+def create_illumina_format(
+    fasta_file,
+    vcf_file,
+    position=61,
+    output_file="illumina_probes.txt",
+    flank_length=60,
+):
     """Create Illumina-style SNP assay design format"""
-    
+
     # Get all variants from VCF
     variants = extract_variants_from_vcf(vcf_file)
     if not variants:
         print("Error: No variants found in VCF file")
         return
-    
+
     print(f"Found {len(variants)} variants in VCF file")
     print(f"Reading FASTA file: {fasta_file}")
-    
+
     # Process FASTA sequences
     sequences = parse_fasta(fasta_file)
     print(f"Found {len(sequences)} sequences in FASTA file")
@@ -106,11 +119,11 @@ def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illum
     if duplicates:
         print(f"Warning: Found {len(duplicates)} duplicate variant keys in VCF")
         print("First few duplicates:", list(duplicates)[:5])
-    
+
     # Check if chromosomes are in expected format
-    chroms = set([v['chrom'] for v in variants])
+    chroms = set([v["chrom"] for v in variants])
     print(f"Found variants on {len(chroms)} chromosomes: {sorted(chroms)}")
-    
+
     # Build a dictionary of variants by chrom_pos for quicker lookup
     variant_dict = {}
     for variant in variants:
@@ -118,59 +131,80 @@ def create_illumina_format(fasta_file, vcf_file, position=61, output_file="illum
         if key in variant_dict:
             print(f"Warning: Duplicate variant key found: {key}")
         variant_dict[key] = variant
-    
+
     # Open output file
-    with open(output_file, 'w') as out:
+    with open(output_file, "w") as out:
         sequence_count = 0
         processed_variants = set()
-        
+
         # Process each sequence
         for seq_id, seq in sequences.items():
             # Sequence ID is already in chrom_pos format
             variant_key = seq_id  # e.g., "chr1H_222"
-            
+
             if variant_key in variant_dict:
                 variant = variant_dict[variant_key]
                 pos_index = position - 1  # Convert to 0-based
-                
+
                 # Check if sequence is long enough for flanking extraction
-                if len(seq) <= pos_index or pos_index < flank_length or len(seq) - pos_index <= flank_length:
-                    print(f"Warning: Sequence {seq_id} is too short for flanking extraction")
+                if (
+                    len(seq) <= pos_index
+                    or pos_index < flank_length
+                    or len(seq) - pos_index <= flank_length
+                ):
+                    print(
+                        f"Warning: Sequence {seq_id} is too short for flanking extraction"
+                    )
                     continue
-                
+
                 # Extract flanking sequences
-                upstream = seq[pos_index-flank_length:pos_index]
-                downstream = seq[pos_index+1:pos_index+flank_length+1]
-                
+                upstream = seq[pos_index - flank_length : pos_index]
+                downstream = seq[pos_index + 1 : pos_index + flank_length + 1]
+
                 # Use the variant's ref/alt alleles
-                ref_allele = variant['ref']
-                alt_allele = variant['alt']
-                
+                ref_allele = variant["ref"]
+                alt_allele = variant["alt"]
+
                 # Create the Illumina format string
-                illumina_string = f"{variant_key}\t{upstream}[{ref_allele}/{alt_allele}]{downstream}"
+                illumina_string = (
+                    f"{variant_key}\t{upstream}[{ref_allele}/{alt_allele}]{downstream}"
+                )
                 out.write(illumina_string + "\n")
-                
+
                 sequence_count += 1
                 processed_variants.add(variant_key)
             else:
                 print(f"Warning: No matching variant found for sequence {seq_id}")
-        
+
         print(f"Processed {sequence_count}/{len(variant_dict)} variants")
-        
+
         # Report any variants that didn't have matching sequences
         missing_variants = set(variant_dict.keys()) - processed_variants
         if missing_variants:
-            print(f"Warning: {len(missing_variants)} variants did not have matching sequences")
+            print(
+                f"Warning: {len(missing_variants)} variants did not have matching sequences"
+            )
             print("First few missing variants:", list(missing_variants)[:5])
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create Illumina SNP assay design format")
+    parser = argparse.ArgumentParser(
+        description="Create Illumina SNP assay design format"
+    )
     parser.add_argument("-f", "--fasta", required=True, help="Input FASTA file")
     parser.add_argument("-v", "--vcf", required=True, help="Input VCF file")
-    parser.add_argument("-p", "--position", type=int, default=61, help="Position to modify (1-based)")
-    parser.add_argument("-o", "--output", default="illumina_probes.txt", help="Output file")
-    parser.add_argument("--flank", type=int, default=60, help="Length of flanking sequence (default: 60)")
+    parser.add_argument(
+        "-p", "--position", type=int, default=61, help="Position to modify (1-based)"
+    )
+    parser.add_argument(
+        "-o", "--output", default="illumina_probes.txt", help="Output file"
+    )
+    parser.add_argument(
+        "--flank",
+        type=int,
+        default=60,
+        help="Length of flanking sequence (default: 60)",
+    )
 
     args = parser.parse_args()
     create_illumina_format(args.fasta, args.vcf, args.position, args.output, args.flank)
