@@ -343,7 +343,7 @@ def main() -> int:
 
     total_bytes, file_count = estimate_input_stats(source_dir)
     estimated_minutes = estimate_runtime_minutes(total_bytes, file_count, args.level)
-    size_gib = total_bytes / (1024.0 ** 3)
+    size_gib = total_bytes / (1024.0**3)
     print(f"Input size: {size_gib:.2f} GiB across {file_count} files")
     print(f"Estimated runtime: {estimated_minutes:.1f} minutes")
     if estimated_minutes > args.max_runtime_minutes:
