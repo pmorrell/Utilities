@@ -1,8 +1,8 @@
 #!/bin/bash -l
-#SBATCH --time=2:00:00
+#SBATCH --time=8:00:00
 #SBATCH --ntasks=5
-#SBATCH --mem=24g
-#SBATCH --tmp=24g
+#SBATCH --mem=64g
+#SBATCH --tmp=64g
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=pmorrell@umn.edu
 #SBATCH -o %j.out
@@ -52,7 +52,7 @@ if [ ! -f "${FILE02}" ]; then
 fi
 
 # Load required modules
-module load bcftools/1.21
+module load bcftools/1.23.1
 
 mkdir -p "${OUTPUT_DIR}"
 

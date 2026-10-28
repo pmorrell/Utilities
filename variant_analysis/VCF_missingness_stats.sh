@@ -27,10 +27,10 @@ fi
 INPUT_VCF="$1"
 WORK_DIR="$2"
 OUTPUT_DIR="${WORK_DIR}/variation_summary"
-DATAMASH=/projects/standard/morrellp/shared/Software/datamash-1.9/datamash
+DATAMASH=/users/6/pmorrell/Apps/datamash-1.9/datamash
 
 # 2. Environment Setup
-module load bcftools/1.21
+module load bcftools/1.23.1
 module load python3/3.8.3_anaconda2020.07_mamba
 module load texlive/20131202
 
